@@ -1,0 +1,3464 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SekolahPintar LMS — Belajar Seru SD & SMP</title>
+  <meta name="theme-color" content="#251F67" />
+  <meta name="description" content="Aplikasi Learning Management System (LMS) modern dan ramah untuk jenjang SD dan SMP dengan fitur Video Belajar, Live dengan Guru, dan Kuis Interaktif." />
+
+  <!-- PWA Manifest via Data URI (Single-File PWA Standard) -->
+  <link rel="manifest" href='data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22SekolahPintar%20LMS%20SD%2FSMP%22%2C%22short_name%22%3A%22SekolahPintar%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23F4F6FB%22%2C%22theme_color%22%3A%22%23251F67%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%3Butf8%2C%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20192%20192%27%3E%3Crect%20width%3D%27192%27%20height%3D%27192%27%20rx%3D%2748%27%20fill%3D%27%23251F67%27%2F%3E%3Ccircle%20cx%3D%2796%27%20cy%3D%2796%27%20r%3D%2754%27%20fill%3D%27%23FFC374%27%2F%3E%3Cpath%20d%3D%27M72%2096l16%2016%2032-36%27%20stroke%3D%27%23251F67%27%20stroke-width%3D%2712%27%20fill%3D%27none%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%2F%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D' />
+
+  <!-- Google Fonts: Plus Jakarta Sans (Ramah & Mudah Dibaca Siswa SD/SMP) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            canvas: '#F4F6FB',
+            navy: {
+              DEFAULT: '#251F67',
+              light: '#352D8A',
+              dark: '#1A154D',
+            },
+            peach: {
+              DEFAULT: '#FFC374',
+              dark: '#FFB250',
+            },
+            brand: '#5B5CE6',
+          },
+          boxShadow: {
+            bento: '0 6px 24px -4px rgba(37, 31, 103, 0.05)',
+            pill: '0 4px 16px -2px rgba(37, 31, 103, 0.06)',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* Reset agar tampil Full Page bersih di Blogger maupun Standalone Web */
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #F4F6FB;
+      color: #251F67;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
+    }
+
+    /* Pembungkus penuh menutupi elemen bawaan Blogger jika disematkan di Widget */
+    #lms-root-wrapper {
+      position: fixed;
+      inset: 0;
+      z-index: 99990;
+      background-color: #F4F6FB;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    /* Scrollbar halus */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F4F6FB;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+
+    /* Animasi Transisi Halaman */
+    .fade-in {
+      animation: fadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Tab Sidebar Aktif menyatu ke kanan seperti gambar referensi */
+    .sidebar-item-active {
+      background-color: #F4F6FB;
+      color: #251F67;
+      border-top-left-radius: 18px;
+      border-bottom-left-radius: 18px;
+      margin-left: 10px;
+      padding-right: 10px;
+      position: relative;
+    }
+    .sidebar-item-active::before,
+    .sidebar-item-active::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      width: 18px;
+      height: 18px;
+      background-color: transparent;
+      pointer-events: none;
+    }
+    .sidebar-item-active::before {
+      top: -18px;
+      border-bottom-right-radius: 18px;
+      box-shadow: 6px 6px 0 6px #F4F6FB;
+    }
+    .sidebar-item-active::after {
+      bottom: -18px;
+      border-top-right-radius: 18px;
+      box-shadow: 6px -6px 0 6px #F4F6FB;
+    }
+
+    /* Rasio Video & Embed 16:9 */
+    .aspect-video-box {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      background: #0F172A;
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+    .aspect-video-box iframe,
+    .aspect-video-box video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Root Container Fullscreen -->
+  <div id="lms-root-wrapper">
+    <div id="app"></div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed top-4 right-4 z-[99999] flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Custom Modal Container -->
+  <div id="modal-container" class="fixed inset-0 z-[99998] hidden items-center justify-center bg-[#251F67]/40 backdrop-blur-sm p-4"></div>
+
+  <script type="module">
+    // =========================================================================
+    // 1. KONFIGURASI APLIKASI & SAKLAR DUAL-MODE (WAJIB DI ATAS)
+    // =========================================================================
+    const IS_PREVIEW = true; // Ubah menjadi false SAAT DEPLOY / PUBLISH agar terhubung murni ke Firebase tanpa data dummy
+
+    // PASTE FIREBASE CONFIG ANDA DI SINI
+    const firebaseConfig = {
+      apiKey: "API_KEY_ANDA",
+      authDomain: "PROJECT_ID.firebaseapp.com",
+      projectId: "PROJECT_ID",
+      storageBucket: "PROJECT_ID.appspot.com",
+      messagingSenderId: "SENDER_ID",
+      appId: "APP_ID"
+    };
+
+    // =========================================================================
+    // 2. INISIALISASI FIREBASE SDK (HANYA AKTIF JIKA IS_PREVIEW === false)
+    // =========================================================================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      addDoc,
+      setDoc,
+      updateDoc,
+      deleteDoc,
+      getDocs,
+      query,
+      where,
+      onSnapshot,
+      arrayUnion
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    let fbApp = null;
+    let fbAuth = null;
+    let fbDb = null;
+    let unsubscribers = [];
+
+    if (!IS_PREVIEW) {
+      try {
+        fbApp = initializeApp(firebaseConfig);
+        fbAuth = getAuth(fbApp);
+        fbDb = getFirestore(fbApp);
+      } catch (err) {
+        console.error("Gagal menginisialisasi Firebase:", err);
+      }
+    }
+
+    // =========================================================================
+    // 3. REGISTRASI SERVICE WORKER PWA SECARA DINAMIS (BLOB)
+    // =========================================================================
+    function registerDynamicPWA() {
+      if ('serviceWorker' in navigator) {
+        const swCode = `
+          const CACHE_NAME = 'sekolahpintar-lms-v1';
+          self.addEventListener('install', (event) => {
+            self.skipWaiting();
+          });
+          self.addEventListener('activate', (event) => {
+            event.waitUntil(self.clients.claim());
+          });
+          self.addEventListener('fetch', (event) => {
+            if (event.request.method !== 'GET') return;
+            event.respondWith(
+              fetch(event.request).catch(() => caches.match(event.request))
+            );
+          });
+        `;
+        try {
+          const blob = new Blob([swCode], { type: 'application/javascript' });
+          const swUrl = URL.createObjectURL(blob);
+          navigator.serviceWorker.register(swUrl).catch(() => {});
+        } catch (e) {
+          // Abaikan jika browser membatasi blob SW pada sandbox preview
+        }
+      }
+    }
+    registerDynamicPWA();
+
+    // =========================================================================
+    // 4. STATE APLIKASI & DATA DUMMY TERKONTROL (STRICT DUAL-MODE)
+    // =========================================================================
+    const SUBJECT_LIST = [
+      'Matematika',
+      'IPA (Sains)',
+      'Bahasa Indonesia',
+      'Bahasa Inggris',
+      'IPS',
+      'PPKn',
+      'Informatika'
+    ];
+
+    // State utama aplikasi (100% kosong jika IS_PREVIEW === false)
+    const state = {
+      currentUser: null, // { id, name, username, role: 'admin' | 'guru' | 'siswa', className }
+      loginTab: 'peserta', // 'peserta' (Guru/Siswa) | 'admin' (Email & Password)
+      activeMenu: 'beranda', // 'beranda' | 'video' | 'live' | 'kuis' | 'kelola' | 'pengaturan'
+      loading: false,
+
+      // Profil & Logo Sekolah
+      schoolSettings: {
+        schoolName: 'SekolahPintar LMS',
+        shortName: 'LMS',
+        npsn: '',
+        level: 'SD & SMP',
+        address: '',
+        headmaster: '',
+        academicYear: '',
+        logoDataUrl: ''
+      },
+
+      // Filter UI
+      videoSubjectFilter: 'Semua',
+      videoSearch: '',
+      quizSubjectFilter: 'Semua',
+      statsQuizFilter: 'all',
+      manageTab: 'siswa', // 'siswa' | 'guru' | 'kelas' | 'nilai'
+
+      // View Sub-halaman Aktif
+      activeVideo: null,
+      activeLiveSession: null,
+      activeQuizTake: null, // Objek kuis yang sedang dikerjakan siswa
+      quizAnswers: {}, // { questionIndex: optionIndex }
+      quizCurrentStep: 0,
+      quizTimerSeconds: 0,
+      quizTimerInterval: null,
+
+      // Koleksi Data
+      users: [],
+      classes: [],
+      videos: [],
+      live_sessions: [],
+      live_messages: [],
+      quizzes: [],
+      quiz_results: []
+    };
+
+    // Suntikkan maksimal 1-2 data dummy per koleksi HANYA JIKA IS_PREVIEW === true
+    if (IS_PREVIEW) {
+      state.schoolSettings = {
+        schoolName: 'SD/SMP Pintar Nusantara',
+        shortName: 'LMS',
+        npsn: '20261234',
+        level: 'SD & SMP',
+        address: 'Jl. Pendidikan Merdeka No. 10',
+        headmaster: 'Dra. Kartini Wijaya, M.Pd',
+        academicYear: '2026/2027 • Semester Ganjil',
+        logoDataUrl: ''
+      };
+
+      state.classes = [
+        { id: 'cls-1', name: 'Kelas 5A (SD)', level: 'SD', teacherName: 'Bu Rina Sari, S.Pd' },
+        { id: 'cls-2', name: 'Kelas 7B (SMP)', level: 'SMP', teacherName: 'Pak Dimas Pratama, M.Pd' }
+      ];
+
+      state.users = [
+        {
+          id: 'usr-guru-1',
+          name: 'Bu Rina Sari, S.Pd',
+          username: 'guru01',
+          password: '123',
+          role: 'guru',
+          className: 'Kelas 5A (SD)'
+        },
+        {
+          id: 'usr-siswa-1',
+          name: 'Budi Santoso',
+          username: 'siswa01',
+          password: '123',
+          role: 'siswa',
+          className: 'Kelas 5A (SD)'
+        }
+      ];
+
+      state.videos = [
+        {
+          id: 'vid-1',
+          title: 'Mengenal Pecahan Senilai & Cara Mudah Menghitungnya',
+          subject: 'Matematika',
+          className: 'Kelas 5A (SD)',
+          rawUrl: 'https://www.youtube.com/watch?v=M7lc1UVf-VE',
+          embedUrl: 'https://www.youtube.com/embed/M7lc1UVf-VE',
+          description: 'Video pembelajaran interaktif tentang konsep dasar pecahan senilai untuk siswa SD kelas 5.',
+          teacherName: 'Bu Rina Sari, S.Pd',
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 'vid-2',
+          title: 'Sistem Tata Surya dan Planet-Planet di Sekitar Matahari',
+          subject: 'IPA (Sains)',
+          className: 'Kelas 7B (SMP)',
+          rawUrl: 'https://www.youtube.com/watch?v=libKVRa01L8',
+          embedUrl: 'https://www.youtube.com/embed/libKVRa01L8',
+          description: 'Mengenal urutan planet, ciri-ciri planet dalam dan luar, serta rotasi bumi.',
+          teacherName: 'Pak Dimas Pratama, M.Pd',
+          createdAt: new Date().toISOString()
+        }
+      ];
+
+      state.live_sessions = [
+        {
+          id: 'live-1',
+          title: 'Kelas Live Interaktif: Latihan Soal Pecahan & Tanya Jawab',
+          subject: 'Matematika',
+          className: 'Kelas 5A (SD)',
+          teacherName: 'Bu Rina Sari, S.Pd',
+          meetingUrl: 'https://meet.jit.si/SekolahPintarKelas5A',
+          embedUrl: 'https://meet.jit.si/SekolahPintarKelas5A#config.prejoinPageEnabled=false',
+          scheduleTime: 'Hari Ini • 09:00 WIB',
+          status: 'live',
+          attendees: ['Budi Santoso']
+        }
+      ];
+
+      state.live_messages = [
+        {
+          id: 'msg-1',
+          sessionId: 'live-1',
+          senderName: 'Bu Rina Sari, S.Pd',
+          senderRole: 'guru',
+          text: 'Selamat pagi anak-anak! Silakan tulis pertanyaan di kolom ini jika ada bagian yang belum paham ya.',
+          createdAt: '09:01'
+        },
+        {
+          id: 'msg-2',
+          sessionId: 'live-1',
+          senderName: 'Budi Santoso',
+          senderRole: 'siswa',
+          text: 'Pagi Bu Rina! Suara dan layar Ibu terlihat jelas sekali.',
+          createdAt: '09:02'
+        }
+      ];
+
+      state.quizzes = [
+        {
+          id: 'quiz-1',
+          title: 'Kuis Harian 1: Pecahan & Operasi Dasar',
+          subject: 'Matematika',
+          className: 'Kelas 5A (SD)',
+          mode: 'manual',
+          externalPlatform: '',
+          externalUrl: '',
+          embedUrl: '',
+          durationMinutes: 10,
+          teacherName: 'Bu Rina Sari, S.Pd',
+          questions: [
+            {
+              question: 'Pecahan yang senilai dengan 1/2 adalah ...',
+              options: ['2/4', '1/3', '3/4', '2/5'],
+              answerIndex: 0
+            },
+            {
+              question: 'Hasil dari 1/4 + 2/4 adalah ...',
+              options: ['3/8', '3/4', '2/4', '1/2'],
+              answerIndex: 1
+            },
+            {
+              question: 'Bentuk desimal dari pecahan 1/2 adalah ...',
+              options: ['0,2', '0,25', '0,5', '0,75'],
+              answerIndex: 2
+            }
+          ],
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 'quiz-2',
+          title: 'Game Kuis Tata Surya (Integrasi Wordwall)',
+          subject: 'IPA (Sains)',
+          className: 'Kelas 7B (SMP)',
+          mode: 'external',
+          externalPlatform: 'Wordwall',
+          externalUrl: 'https://wordwall.net/id/resource/35494695',
+          embedUrl: 'https://wordwall.net/id/embed/35494695',
+          durationMinutes: 15,
+          teacherName: 'Pak Dimas Pratama, M.Pd',
+          questions: [],
+          createdAt: new Date().toISOString()
+        }
+      ];
+
+      state.quiz_results = [
+        {
+          id: 'res-1',
+          quizId: 'quiz-1',
+          quizTitle: 'Kuis Harian 1: Pecahan & Operasi Dasar',
+          subject: 'Matematika',
+          className: 'Kelas 5A (SD)',
+          studentId: 'usr-siswa-1',
+          studentName: 'Budi Santoso',
+          mode: 'manual',
+          score: 100,
+          correctCount: 3,
+          totalQuestions: 3,
+          submittedAt: new Date().toISOString()
+        }
+      ];
+    }
+
+    // =========================================================================
+    // 4B. MESIN IKON SVG BAWAAN (ANTI-GAGAL / TANPA KETERGANTUNGAN CDN)
+    // =========================================================================
+    const SVG_ICONS = {
+      'alert-circle': '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
+      'info': '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+      'check-circle-2': '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+      'check-circle': '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+      'alert-triangle': '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+      'sparkles': '<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>',
+      'graduation-cap': '<path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>',
+      'user-check': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/>',
+      'shield-check': '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+      'user': '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+      'lock': '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+      'mail': '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+      'key-round': '<path d="M2 18v3c0 .6.4 1 1 1h4v-3h3v-3h2l1.4-1.4a6.5 6.5 0 1 0-4-4Z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/>',
+      'arrow-right': '<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>',
+      'arrow-left': '<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>',
+      'layout-grid': '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
+      'play-circle': '<circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>',
+      'play': '<polygon points="5 3 19 12 5 21 5 3"/>',
+      'video': '<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>',
+      'clipboard-check': '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+      'clipboard-list': '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
+      'users': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+      'log-out': '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
+      'radio': '<circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/>',
+      'puzzle': '<path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 1 0-3.214 3.214c.446.166.855.497.925.968a.979.979 0 0 1-.276.837l-1.61 1.61a2.404 2.404 0 0 1-1.705.707 2.402 2.402 0 0 1-1.704-.706l-1.568-1.568a1.026 1.026 0 0 0-.877-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 1 1-3.237-3.237c.464-.18.894-.527.967-1.02a1.026 1.026 0 0 0-.289-.877l-1.568-1.568A2.402 2.402 0 0 1 1.998 12c0-.617.236-1.234.706-1.704L4.23 8.77c.24-.24.581-.353.917-.303.515.077.877.528 1.073 1.01a2.5 2.5 0 1 0 3.259-3.259c-.482-.196-.933-.558-1.01-1.073-.05-.336.062-.676.303-.917l1.525-1.525A2.402 2.402 0 0 1 12 1.998c.617 0 1.234.236 1.704.706l1.568 1.568c.23.23.556.338.877.29.493-.074.84-.504 1.02-.968a2.5 2.5 0 1 1 3.237 3.237c-.464.18-.894.527-.967 1.02Z"/>',
+      'award': '<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>',
+      'plus-circle': '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>',
+      'plus': '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+      'book-open': '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+      'bar-chart-2': '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+      'clock': '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+      'trash-2': '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>',
+      'search': '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+      'film': '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 3v18"/><path d="M3 7.5h4"/><path d="M3 12h18"/><path d="M3 16.5h4"/><path d="M17 3v18"/><path d="M17 7.5h4"/><path d="M17 16.5h4"/>',
+      'external-link': '<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>',
+      'message-circle': '<path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/>',
+      'send': '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>',
+      'school': '<path d="m4 6 8-4 8 4"/><path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2"/><path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4"/><path d="M18 5v17"/><path d="M6 5v17"/><circle cx="12" cy="9" r="2"/>',
+      'settings': '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+      'upload': '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
+      'image': '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
+      'save': '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>',
+      'flask-conical': '<path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/>'
+    };
+
+    function renderIcons() {
+      document.querySelectorAll('[data-lucide]').forEach((el) => {
+        const name = el.getAttribute('data-lucide');
+        const cls = el.getAttribute('class') || 'w-5 h-5';
+        const inner = SVG_ICONS[name] || SVG_ICONS['sparkles'];
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.setAttribute('stroke-width', '2');
+        svg.setAttribute('stroke-linecap', 'round');
+        svg.setAttribute('stroke-linejoin', 'round');
+        svg.setAttribute('class', cls);
+        svg.innerHTML = inner;
+        el.replaceWith(svg);
+      });
+    }
+
+    // =========================================================================
+    // 5. UTILITAS PARSER LINK VIDEO, LIVE & KUIS EKSTERNAL
+    // =========================================================================
+    function parseVideoEmbedUrl(url) {
+      if (!url) return '';
+      const clean = url.trim();
+      // YouTube standard, shorts, youtu.be
+      const ytMatch = clean.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+      if (ytMatch && ytMatch[1]) {
+        return `https://www.youtube.com/embed/${ytMatch[1]}?rel=0`;
+      }
+      // Google Drive file link
+      const gdriveMatch = clean.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+      if (gdriveMatch && gdriveMatch[1]) {
+        return `https://drive.google.com/file/d/${gdriveMatch[1]}/preview`;
+      }
+      // Vimeo
+      const vimeoMatch = clean.match(/vimeo\.com\/(\d+)/);
+      if (vimeoMatch && vimeoMatch[1]) {
+        return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+      }
+      return clean;
+    }
+
+    function parseLiveEmbedUrl(url) {
+      if (!url) return '';
+      const clean = url.trim();
+      // YouTube Live
+      const ytMatch = clean.match(/(?:youtube\.com\/(?:watch\?v=|live\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+      if (ytMatch && ytMatch[1]) {
+        return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1`;
+      }
+      // Jitsi Meet (bisa langsung di-embed tanpa blokir X-Frame-Options)
+      if (clean.includes('meet.jit.si')) {
+        return clean.includes('#') ? clean : `${clean}#config.prejoinPageEnabled=false`;
+      }
+      return clean;
+    }
+
+    function parseExternalQuizUrl(url) {
+      if (!url) return { embedUrl: '', platform: 'Web Kuis' };
+      const clean = url.trim();
+      if (clean.includes('wordwall.net')) {
+        const embed = clean.replace('/resource/', '/embed/');
+        return { embedUrl: embed, platform: 'Wordwall' };
+      }
+      if (clean.includes('quizizz.com')) {
+        return { embedUrl: clean, platform: 'Quizizz' };
+      }
+      if (clean.includes('kahoot.it') || clean.includes('kahoot.com')) {
+        return { embedUrl: clean, platform: 'Kahoot!' };
+      }
+      if (clean.includes('docs.google.com/forms')) {
+        const embed = clean.includes('embedded=true')
+          ? clean
+          : (clean.includes('?') ? `${clean}&embedded=true` : `${clean}?embedded=true`);
+        return { embedUrl: embed, platform: 'Google Forms' };
+      }
+      if (clean.includes('liveworksheets.com')) {
+        return { embedUrl: clean, platform: 'Liveworksheets' };
+      }
+      return { embedUrl: clean, platform: 'Aplikasi Kuis Luar' };
+    }
+
+    // =========================================================================
+    // 6. NOTIFIKASI TOAST & MODAL KUSTOM (PENGGANTI ALERT & CONFIRM)
+    // =========================================================================
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const colors = {
+        success: 'bg-[#251F67] text-white border-emerald-400',
+        error: 'bg-rose-600 text-white border-rose-300',
+        info: 'bg-indigo-600 text-white border-indigo-300'
+      };
+      const iconName = type === 'error' ? 'alert-circle' : (type === 'info' ? 'info' : 'check-circle-2');
+      toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-2xl shadow-lg border-l-4 text-sm font-semibold transition-all duration-300 transform translate-x-0 ${colors[type] || colors.success}`;
+      toast.innerHTML = `
+        <i data-lucide="${iconName}" class="w-5 h-5 shrink-0"></i>
+        <span>${escapeHtml(message)}</span>
+      `;
+      container.appendChild(toast);
+      renderIcons();
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(20px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+
+    function openModal(htmlContent) {
+      const modal = document.getElementById('modal-container');
+      modal.innerHTML = `
+        <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 fade-in relative">
+          ${htmlContent}
+        </div>
+      `;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      renderIcons();
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('modal-container');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      modal.innerHTML = '';
+    }
+
+    function confirmAction(title, description, onConfirm) {
+      openModal(`
+        <div class="text-center py-2">
+          <div class="w-16 h-16 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+          </div>
+          <h3 class="text-xl font-bold text-[#251F67] mb-2">${escapeHtml(title)}</h3>
+          <p class="text-sm text-slate-500 mb-6">${escapeHtml(description)}</p>
+          <div class="flex items-center justify-center gap-3">
+            <button id="modal-cancel-btn" class="px-5 py-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition">
+              Batal
+            </button>
+            <button id="modal-confirm-btn" class="px-6 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm transition">
+              Ya, Lanjutkan
+            </button>
+          </div>
+        </div>
+      `);
+      document.getElementById('modal-cancel-btn').onclick = closeModal;
+      document.getElementById('modal-confirm-btn').onclick = () => {
+        closeModal();
+        onConfirm();
+      };
+    }
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // =========================================================================
+    // 7. SINKRONISASI REAL-TIME FIRESTORE (AKTIF HANYA SAAT IS_PREVIEW === false)
+    // =========================================================================
+    function startFirestoreListeners() {
+      if (IS_PREVIEW || !fbDb) return;
+      stopFirestoreListeners();
+
+      const collectionsToWatch = [
+        'users',
+        'classes',
+        'videos',
+        'live_sessions',
+        'live_messages',
+        'quizzes',
+        'quiz_results'
+      ];
+
+      collectionsToWatch.forEach((colName) => {
+        const unsub = onSnapshot(
+          collection(fbDb, colName),
+          (snapshot) => {
+            state[colName] = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+            // Perbarui referensi objek aktif jika sedang dibuka
+            if (state.activeLiveSession) {
+              const updated = state.live_sessions.find((s) => s.id === state.activeLiveSession.id);
+              if (updated) state.activeLiveSession = updated;
+            }
+            renderApp();
+          },
+          (error) => {
+            console.error(`Error membaca koleksi ${colName}:`, error);
+          }
+        );
+        unsubscribers.push(unsub);
+      });
+
+      // Pantau dokumen pengaturan sekolah secara real-time
+      const unsubSettings = onSnapshot(
+        doc(fbDb, 'settings', 'school_profile'),
+        (docSnap) => {
+          if (docSnap.exists()) {
+            state.schoolSettings = { ...state.schoolSettings, ...docSnap.data() };
+            renderApp();
+          }
+        },
+        (error) => {
+          console.error('Error membaca pengaturan sekolah:', error);
+        }
+      );
+      unsubscribers.push(unsubSettings);
+    }
+
+    function stopFirestoreListeners() {
+      unsubscribers.forEach((fn) => fn());
+      unsubscribers = [];
+    }
+
+    // Pantau sesi Firebase Auth untuk Admin saat IS_PREVIEW === false
+    if (!IS_PREVIEW && fbAuth) {
+      onAuthStateChanged(fbAuth, (firebaseUser) => {
+        if (firebaseUser && (!state.currentUser || state.currentUser.role === 'admin')) {
+          state.currentUser = {
+            id: firebaseUser.uid,
+            name: firebaseUser.displayName || 'Administrator Sekolah',
+            username: firebaseUser.email,
+            role: 'admin',
+            className: 'Semua Jenjang SD/SMP'
+          };
+          startFirestoreListeners();
+          renderApp();
+        }
+      });
+    }
+
+    // =========================================================================
+    // 8. OPERASI CRUD HYBRID (DUAL-MODE: IN-MEMORY VS FIRESTORE)
+    // =========================================================================
+    async function dbAdd(colName, payload) {
+      if (IS_PREVIEW) {
+        const newItem = { id: `${colName}-${Date.now()}`, ...payload };
+        state[colName].unshift(newItem);
+        renderApp();
+        return newItem;
+      } else {
+        const docRef = await addDoc(collection(fbDb, colName), payload);
+        return { id: docRef.id, ...payload };
+      }
+    }
+
+    async function dbUpdate(colName, id, payload) {
+      if (IS_PREVIEW) {
+        const idx = state[colName].findIndex((item) => item.id === id);
+        if (idx !== -1) {
+          state[colName][idx] = { ...state[colName][idx], ...payload };
+        }
+        renderApp();
+      } else {
+        await updateDoc(doc(fbDb, colName, id), payload);
+      }
+    }
+
+    async function dbDelete(colName, id) {
+      if (IS_PREVIEW) {
+        state[colName] = state[colName].filter((item) => item.id !== id);
+        renderApp();
+      } else {
+        await deleteDoc(doc(fbDb, colName, id));
+      }
+    }
+
+    // =========================================================================
+    // 9. AUTENTIKASI HYBRID (ADMIN VIA FIREBASE AUTH, GURU/SISWA VIA FIRESTORE)
+    // =========================================================================
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      if (state.loginTab === 'admin') {
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-admin-pass').value.trim();
+        if (!email || !password) {
+          showToast('Email dan kata sandi Admin wajib diisi.', 'error');
+          return;
+        }
+
+        if (IS_PREVIEW) {
+          state.currentUser = {
+            id: 'admin-preview',
+            name: 'Administrator Sekolah',
+            username: email,
+            role: 'admin',
+            className: 'Semua Jenjang SD/SMP'
+          };
+          showToast('Berhasil masuk sebagai Administrator (Mode Preview).');
+          renderApp();
+          return;
+        }
+
+        try {
+          state.loading = true;
+          renderApp();
+          const cred = await signInWithEmailAndPassword(fbAuth, email, password);
+          state.currentUser = {
+            id: cred.user.uid,
+            name: 'Administrator Sekolah',
+            username: cred.user.email,
+            role: 'admin',
+            className: 'Semua Jenjang SD/SMP'
+          };
+          startFirestoreListeners();
+          showToast('Selamat datang kembali, Administrator!');
+        } catch (err) {
+          showToast('Login Admin gagal: Periksa email atau kata sandi Firebase Auth Anda.', 'error');
+        } finally {
+          state.loading = false;
+          renderApp();
+        }
+      } else {
+        // Login Peserta (Guru / Siswa) via validasi dokumen koleksi 'users'
+        const username = document.getElementById('login-username').value.trim();
+        const password = document.getElementById('login-user-pass').value.trim();
+        if (!username || !password) {
+          showToast('Username / NISN / NIP dan kata sandi wajib diisi.', 'error');
+          return;
+        }
+
+        if (IS_PREVIEW) {
+          const found = state.users.find(
+            (u) => u.username.toLowerCase() === username.toLowerCase() && u.password === password
+          );
+          if (found) {
+            state.currentUser = { ...found };
+            showToast(`Halo, ${found.name}! Selamat belajar.`);
+            renderApp();
+          } else {
+            showToast('Username atau kata sandi tidak ditemukan di data demo.', 'error');
+          }
+          return;
+        }
+
+        // Mode Produksi: Query langsung ke koleksi Firestore 'users'
+        try {
+          state.loading = true;
+          renderApp();
+          const q = query(
+            collection(fbDb, 'users'),
+            where('username', '==', username),
+            where('password', '==', password)
+          );
+          const snap = await getDocs(q);
+          if (snap.empty) {
+            showToast('Username/NISN atau kata sandi salah. Hubungi Admin sekolah.', 'error');
+          } else {
+            const userDoc = snap.docs[0];
+            state.currentUser = { id: userDoc.id, ...userDoc.data() };
+            startFirestoreListeners();
+            showToast(`Selamat datang, ${state.currentUser.name}!`);
+          }
+        } catch (err) {
+          showToast('Gagal terhubung ke database Firestore. Periksa konfigurasi & Rules.', 'error');
+        } finally {
+          state.loading = false;
+          renderApp();
+        }
+      }
+    }
+
+    async function handleLogout() {
+      if (state.quizTimerInterval) clearInterval(state.quizTimerInterval);
+      if (!IS_PREVIEW && fbAuth && state.currentUser?.role === 'admin') {
+        try {
+          await signOut(fbAuth);
+        } catch (e) {}
+      }
+      stopFirestoreListeners();
+      state.currentUser = null;
+      state.activeMenu = 'beranda';
+      state.activeVideo = null;
+      state.activeLiveSession = null;
+      state.activeQuizTake = null;
+      renderApp();
+      showToast('Anda telah keluar dari aplikasi.', 'info');
+    }
+
+    // =========================================================================
+    // 10. KOMPONEN HALAMAN LOGIN (RAMAH SD/SMP + HYBRID AUTH)
+    // =========================================================================
+    function renderLoginPage() {
+      const previewBannerHtml = IS_PREVIEW
+        ? `
+          <div class="mb-6 p-4 rounded-2xl bg-[#FFC374]/25 border border-[#FFC374] text-[#251F67] text-xs">
+            <div class="flex items-center gap-2 font-bold text-sm mb-1.5">
+              <i data-lucide="sparkles" class="w-4 h-4 text-amber-600"></i>
+              <span>Mode Uji Coba (Preview) Aktif</span>
+            </div>
+            <p class="text-slate-600 mb-2">Gunakan akun contoh berikut untuk mencoba tampilan Siswa, Guru, atau Admin:</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button type="button" onclick="window.fillDemoAccount('siswa01', '123', 'peserta')" class="text-left p-2.5 rounded-xl bg-white hover:bg-indigo-50 border border-indigo-100 transition">
+                <div class="font-bold text-[#251F67]">Siswa SD: Budi</div>
+                <div class="text-slate-500">User: <span class="font-mono font-semibold">siswa01</span> • Pass: <span class="font-mono font-semibold">123</span></div>
+              </button>
+              <button type="button" onclick="window.fillDemoAccount('guru01', '123', 'peserta')" class="text-left p-2.5 rounded-xl bg-white hover:bg-indigo-50 border border-indigo-100 transition">
+                <div class="font-bold text-[#251F67]">Guru: Bu Rina</div>
+                <div class="text-slate-500">User: <span class="font-mono font-semibold">guru01</span> • Pass: <span class="font-mono font-semibold">123</span></div>
+              </button>
+            </div>
+          </div>
+        `
+        : '';
+
+      return `
+        <div class="min-h-screen bg-[#F4F6FB] flex items-center justify-center p-4 md:p-8">
+          <div class="max-w-5xl w-full bg-white rounded-[32px] shadow-bento overflow-hidden grid grid-cols-1 lg:grid-cols-12 fade-in">
+            
+            <!-- Sisi Kiri: Ilustrasi & Branding Ceria SD/SMP -->
+            <div class="lg:col-span-5 bg-[#251F67] text-white p-8 md:p-10 flex flex-col justify-between relative overflow-hidden">
+              <div class="relative z-10">
+                ${
+                  state.schoolSettings.logoDataUrl
+                    ? `<img src="${state.schoolSettings.logoDataUrl}" alt="Logo Sekolah" class="w-16 h-16 rounded-2xl object-contain bg-white p-1.5 shadow-lg mb-6" />`
+                    : `<div class="w-14 h-14 rounded-2xl bg-[#FFC374] text-[#251F67] flex items-center justify-center shadow-lg mb-6">
+                        <i data-lucide="graduation-cap" class="w-8 h-8"></i>
+                      </div>`
+                }
+                <h1 class="text-2xl md:text-3xl font-extrabold leading-tight mb-3">
+                  ${escapeHtml(state.schoolSettings.schoolName || 'SekolahPintar')} <span class="text-[#FFC374]">LMS</span>
+                </h1>
+                <p class="text-indigo-200 text-sm leading-relaxed">
+                  Ruang belajar digital yang mudah dan menyenangkan untuk siswa <strong>SD & SMP</strong>. Tonton video materi, ikut kelas live bersama guru, dan kerjakan kuis interaktif dalam satu tempat!
+                </p>
+              </div>
+
+              <!-- Ilustrasi SVG Ramah Anak -->
+              <div class="my-8 relative z-10 flex justify-center">
+                <svg viewBox="0 0 260 170" class="w-full max-w-[240px]" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="20" y="20" width="220" height="130" rx="24" fill="#352D8A"/>
+                  <rect x="38" y="38" width="110" height="72" rx="14" fill="#FFC374"/>
+                  <circle cx="93" cy="74" r="18" fill="#251F67"/>
+                  <path d="M88 66L102 74L88 82V66Z" fill="#FFC374"/>
+                  <rect x="160" y="42" width="62" height="14" rx="7" fill="#5B5CE6"/>
+                  <rect x="160" y="66" width="50" height="10" rx="5" fill="#A5B4FC"/>
+                  <rect x="160" y="84" width="58" height="10" rx="5" fill="#A5B4FC"/>
+                  <rect x="38" y="122" width="184" height="12" rx="6" fill="#4338CA"/>
+                  <circle cx="222" cy="30" r="14" fill="#34D399"/>
+                  <path d="M216 30L220 34L228 26" stroke="#251F67" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+
+              <div class="relative z-10 flex items-center gap-3 text-xs text-indigo-200">
+                <span class="px-3 py-1 rounded-full bg-white/10 font-semibold text-white">Video Embed</span>
+                <span class="px-3 py-1 rounded-full bg-white/10 font-semibold text-white">Live Guru</span>
+                <span class="px-3 py-1 rounded-full bg-white/10 font-semibold text-white">Kuis Seru</span>
+              </div>
+            </div>
+
+            <!-- Sisi Kanan: Form Login Hybrid -->
+            <div class="lg:col-span-7 p-6 sm:p-10 md:p-12 flex flex-col justify-center">
+              <div class="mb-6">
+                <h2 class="text-2xl font-extrabold text-[#251F67]">Selamat Datang! 👋</h2>
+                <p class="text-sm text-slate-500 mt-1">Pilih jenis akun untuk masuk ke ruang kelas digital.</p>
+              </div>
+
+              ${previewBannerHtml}
+
+              <!-- Tab Switcher: Siswa/Guru vs Admin Sekolah -->
+              <div class="grid grid-cols-2 p-1.5 rounded-full bg-[#F4F6FB] mb-6">
+                <button type="button" onclick="window.switchLoginTab('peserta')"
+                  class="py-2.5 px-4 rounded-full text-sm font-bold transition flex items-center justify-center gap-2 ${
+                    state.loginTab === 'peserta'
+                      ? 'bg-[#251F67] text-white shadow-sm'
+                      : 'text-slate-500 hover:text-[#251F67]'
+                  }">
+                  <i data-lucide="user-check" class="w-4 h-4"></i>
+                  <span>Siswa & Guru</span>
+                </button>
+                <button type="button" onclick="window.switchLoginTab('admin')"
+                  class="py-2.5 px-4 rounded-full text-sm font-bold transition flex items-center justify-center gap-2 ${
+                    state.loginTab === 'admin'
+                      ? 'bg-[#251F67] text-white shadow-sm'
+                      : 'text-slate-500 hover:text-[#251F67]'
+                  }">
+                  <i data-lucide="shield-check" class="w-4 h-4"></i>
+                  <span>Admin Sekolah</span>
+                </button>
+              </div>
+
+              <form id="login-form" class="space-y-4">
+                ${
+                  state.loginTab === 'peserta'
+                    ? `
+                      <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Username / NISN / NIP</label>
+                        <div class="relative">
+                          <i data-lucide="user" class="w-5 h-5 text-slate-400 absolute left-4 top-3.5"></i>
+                          <input id="login-username" type="text" placeholder="Contoh: siswa01 atau guru01"
+                            class="w-full pl-12 pr-4 py-3 rounded-2xl bg-[#F4F6FB] border border-transparent focus:border-[#5B5CE6] focus:bg-white focus:outline-none text-sm font-semibold text-[#251F67] transition" required />
+                        </div>
+                      </div>
+                      <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Kata Sandi</label>
+                        <div class="relative">
+                          <i data-lucide="lock" class="w-5 h-5 text-slate-400 absolute left-4 top-3.5"></i>
+                          <input id="login-user-pass" type="password" placeholder="Masukkan kata sandi"
+                            class="w-full pl-12 pr-4 py-3 rounded-2xl bg-[#F4F6FB] border border-transparent focus:border-[#5B5CE6] focus:bg-white focus:outline-none text-sm font-semibold text-[#251F67] transition" required />
+                        </div>
+                      </div>
+                    `
+                    : `
+                      <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Email Administrator</label>
+                        <div class="relative">
+                          <i data-lucide="mail" class="w-5 h-5 text-slate-400 absolute left-4 top-3.5"></i>
+                          <input id="login-email" type="email" placeholder="admin@sekolah.sch.id"
+                            class="w-full pl-12 pr-4 py-3 rounded-2xl bg-[#F4F6FB] border border-transparent focus:border-[#5B5CE6] focus:bg-white focus:outline-none text-sm font-semibold text-[#251F67] transition" required />
+                        </div>
+                      </div>
+                      <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Kata Sandi Admin</label>
+                        <div class="relative">
+                          <i data-lucide="key-round" class="w-5 h-5 text-slate-400 absolute left-4 top-3.5"></i>
+                          <input id="login-admin-pass" type="password" placeholder="••••••••"
+                            class="w-full pl-12 pr-4 py-3 rounded-2xl bg-[#F4F6FB] border border-transparent focus:border-[#5B5CE6] focus:bg-white focus:outline-none text-sm font-semibold text-[#251F67] transition" required />
+                        </div>
+                      </div>
+                    `
+                }
+
+                <button type="submit" ${state.loading ? 'disabled' : ''}
+                  class="w-full py-3.5 px-6 rounded-full bg-[#5B5CE6] hover:bg-[#4A4BD4] text-white font-bold text-sm shadow-lg shadow-indigo-200 transition flex items-center justify-center gap-2 mt-2">
+                  <span>${state.loading ? 'Memeriksa Akun...' : 'Masuk Sekarang'}</span>
+                  <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 11. NAVIGASI UTAMA (DESKTOP FIXED SIDEBAR + MOBILE FLOATING BOTTOM BAR)
+    // =========================================================================
+    function getNavItems() {
+      const items = [
+        { id: 'beranda', label: 'Beranda', icon: 'layout-grid' },
+        { id: 'video', label: 'Video Belajar', icon: 'play-circle' },
+        { id: 'live', label: 'Kelas Live', icon: 'video' },
+        { id: 'kuis', label: 'Kuis & Nilai', icon: 'clipboard-check' }
+      ];
+      if (state.currentUser.role === 'admin' || state.currentUser.role === 'guru') {
+        items.push({ id: 'kelola', label: 'Kelola Data', icon: 'users' });
+        items.push({ id: 'pengaturan', label: 'Pengaturan Sekolah', icon: 'settings' });
+      }
+      return items;
+    }
+
+    function renderNavigation() {
+      const navItems = getNavItems();
+      const logoImg = state.schoolSettings.logoDataUrl;
+      const shortLabel = state.schoolSettings.shortName || 'LMS';
+
+      // Desktop Fixed Slim Left Sidebar (adaptasi persis dari gambar referensi)
+      const desktopSidebar = `
+        <aside class="hidden md:flex fixed top-0 left-0 bottom-0 w-20 bg-[#251F67] rounded-r-[28px] flex-col items-center justify-between py-6 z-40 shadow-xl">
+          <!-- Logo Sekolah di Atas -->
+          <div onclick="window.navigateMenu('beranda')" class="cursor-pointer flex flex-col items-center gap-1.5 px-2 text-center">
+            <div class="w-12 h-12 rounded-full bg-white text-[#251F67] flex items-center justify-center shadow-md font-extrabold text-sm overflow-hidden p-1">
+              ${
+                logoImg
+                  ? `<img src="${logoImg}" alt="Logo" class="w-full h-full object-contain rounded-full" />`
+                  : `<i data-lucide="graduation-cap" class="w-6 h-6 text-[#251F67]"></i>`
+              }
+            </div>
+            <span class="text-[10px] font-bold tracking-wider text-indigo-200 uppercase line-clamp-1">${escapeHtml(shortLabel)}</span>
+          </div>
+
+          <!-- Daftar Menu Utama -->
+          <nav class="w-full flex flex-col gap-3 my-auto">
+            ${navItems
+              .map((item) => {
+                const isActive = state.activeMenu === item.id;
+                return `
+                  <button onclick="window.navigateMenu('${item.id}')" title="${item.label}"
+                    class="group w-full h-12 flex items-center justify-center transition-all ${
+                      isActive
+                        ? 'sidebar-item-active font-bold'
+                        : 'text-indigo-200 hover:text-white'
+                    }">
+                    <i data-lucide="${item.icon}" class="w-5 h-5"></i>
+                  </button>
+                `;
+              })
+              .join('')}
+          </nav>
+
+          <!-- Tombol Keluar di Bawah -->
+          <button onclick="window.logoutUser()" title="Keluar Aplikasi"
+            class="w-11 h-11 rounded-2xl text-indigo-200 hover:text-white hover:bg-white/10 flex items-center justify-center transition">
+            <i data-lucide="log-out" class="w-5 h-5"></i>
+          </button>
+        </aside>
+      `;
+
+      // Mobile Floating Bottom Navigation Bar (Glassmorphism)
+      const mobileBottomBar = `
+        <nav class="md:hidden fixed bottom-4 left-4 right-4 z-50 bg-[#251F67]/95 backdrop-blur-md rounded-full px-3 py-2 shadow-2xl border border-white/10 flex items-center justify-around">
+          ${navItems
+            .map((item) => {
+              const isActive = state.activeMenu === item.id;
+              return `
+                <button onclick="window.navigateMenu('${item.id}')"
+                  class="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold transition-all ${
+                    isActive
+                      ? 'bg-white text-[#251F67] shadow-sm'
+                      : 'text-indigo-200 hover:text-white'
+                  }">
+                  <i data-lucide="${item.icon}" class="w-4 h-4"></i>
+                  ${isActive ? `<span>${item.label.split(' ')[0]}</span>` : ''}
+                </button>
+              `;
+            })
+            .join('')}
+          <button onclick="window.logoutUser()" title="Keluar"
+            class="p-2 rounded-full text-rose-300 hover:bg-white/10 transition">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </nav>
+      `;
+
+      return desktopSidebar + mobileBottomBar;
+    }
+
+    // =========================================================================
+    // 12. HALAMAN 1: BERANDA (DASHBOARD BENTO ADAPTASI GAMBAR REFERENSI)
+    // =========================================================================
+    function renderDashboardBento() {
+      const user = state.currentUser;
+      const isStudent = user.role === 'siswa';
+
+      // Filter hasil kuis untuk statistik nilai
+      const relevantResults = state.quiz_results.filter((r) => {
+        const matchUser = isStudent ? r.studentId === user.id : true;
+        const matchQuiz = state.statsQuizFilter === 'all' ? true : r.quizId === state.statsQuizFilter;
+        return matchUser && matchQuiz;
+      });
+
+      const scores = relevantResults.map((r) => Number(r.score) || 0);
+      const avgScore = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
+      const maxScore = scores.length ? Math.max(...scores) : null;
+      const minScore = scores.length ? Math.min(...scores) : null;
+
+      // Kategori Donut Chart (sesuai gambar referensi: >=85, 70-84, 55-69, <55)
+      const countA = scores.filter((s) => s >= 85).length;
+      const countB = scores.filter((s) => s >= 70 && s <= 84).length;
+      const countC = scores.filter((s) => s >= 55 && s <= 69).length;
+      const countD = scores.filter((s) => s < 55).length;
+      const totalScores = scores.length;
+
+      // Hitung stroke-dasharray lingkaran keliling 2 * PI * 42 ≈ 263.89
+      const circumference = 263.89;
+      const segA = totalScores ? (countA / totalScores) * circumference : 0;
+      const segB = totalScores ? (countB / totalScores) * circumference : 0;
+      const segC = totalScores ? (countC / totalScores) * circumference : 0;
+      const segD = totalScores ? (countD / totalScores) * circumference : 0;
+
+      // Sesi Live Terdekat / Sedang Berlangsung
+      const upcomingLive =
+        state.live_sessions.find((s) => s.status === 'live') ||
+        state.live_sessions.find((s) => s.status === 'scheduled') ||
+        null;
+
+      // Sapaan waktu
+      const hour = new Date().getHours();
+      const greetingTime =
+        hour < 11 ? 'Selamat pagi' : hour < 15 ? 'Selamat siang' : hour < 18 ? 'Selamat sore' : 'Selamat malam';
+
+      const roleLabel =
+        user.role === 'admin' ? 'Administrator' : user.role === 'guru' ? 'Bapak/Ibu Guru' : `Siswa • ${user.className || 'SD/SMP'}`;
+
+      // Persentase progress bar Ringkasan Data
+      const vidPercent = Math.min(100, state.videos.length * 25);
+      const livePercent = state.live_sessions.length
+        ? Math.round((state.live_sessions.filter((l) => l.status === 'live').length / state.live_sessions.length) * 100)
+        : 0;
+      const quizPercent = Math.min(100, state.quizzes.length * 25);
+      const avgPercent = avgScore !== null ? avgScore : 0;
+
+      return `
+        <div class="space-y-6 fade-in">
+          <!-- BARIS 1 (ASIMETRIS 7:5): HERO BANNER PEACH + KARTU KELAS LIVE TERDEKAT -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <!-- Hero Banner Hangat (#FFC374) -->
+            <div class="lg:col-span-7 bg-gradient-to-r from-[#FFC374] to-[#FFB85C] rounded-[28px] p-6 sm:p-8 flex items-center justify-between gap-4 shadow-bento relative overflow-hidden">
+              <div class="max-w-md z-10">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#251F67]/10 text-[#251F67] text-xs font-bold mb-3">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                  ${escapeHtml(roleLabel)} • ${escapeHtml(state.schoolSettings.schoolName)}
+                </span>
+                <h1 class="text-2xl sm:text-[28px] font-extrabold text-[#251F67] leading-tight mb-2">
+                  ${greetingTime}, ${escapeHtml(user.name)}!
+                </h1>
+                <p class="text-xs sm:text-sm text-[#251F67]/80 font-medium leading-relaxed">
+                  Tonton video pembelajaran pilihan, ikuti kelas tatap muka live bersama guru, dan kerjakan kuis interaktif langsung dari aplikasi.
+                </p>
+              </div>
+
+              <!-- Ilustrasi Vektor Datar (Adaptasi Kanan Atas Gambar Referensi) -->
+              <div class="hidden sm:flex shrink-0 items-center justify-center">
+                <svg width="136" height="124" viewBox="0 0 136 124" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="14" y="16" width="84" height="96" rx="16" fill="#FFFFFF"/>
+                  <rect x="26" y="28" width="60" height="34" rx="8" fill="#EDE9FE"/>
+                  <circle cx="56" cy="45" r="10" fill="#5B5CE6"/>
+                  <path d="M53 40L62 45L53 50V40Z" fill="#FFFFFF"/>
+                  <circle cx="32" cy="74" r="4" fill="#251F67"/>
+                  <rect x="42" y="71" width="42" height="6" rx="3" fill="#CBD5E1"/>
+                  <circle cx="32" cy="88" r="4" fill="#251F67"/>
+                  <rect x="42" y="85" width="32" height="6" rx="3" fill="#CBD5E1"/>
+                  <!-- Lencana Centang Hijau -->
+                  <circle cx="106" cy="24" r="15" fill="#22C55E"/>
+                  <path d="M100 24L104 28L113 19" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                  <!-- Kartu Mini Kanan Bawah -->
+                  <rect x="74" y="58" width="52" height="58" rx="14" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="2"/>
+                  <rect x="82" y="68" width="36" height="22" rx="6" fill="#5B5CE6"/>
+                  <rect x="82" y="96" width="36" height="6" rx="3" fill="#F43F5E"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Kartu Kanan Atas: Kelas Live Terdekat -->
+            <div class="lg:col-span-5 bg-white rounded-[28px] p-6 sm:p-7 shadow-bento flex flex-col justify-between">
+              <div class="flex items-center justify-between mb-3">
+                <h2 class="text-base sm:text-lg font-extrabold text-[#251F67]">Kelas Live Terdekat</h2>
+                <button onclick="window.navigateMenu('live')" class="text-xs font-bold text-[#5B5CE6] hover:underline">
+                  Lihat semua
+                </button>
+              </div>
+
+              ${
+                upcomingLive
+                  ? `
+                    <div class="p-4 rounded-2xl bg-[#F4F6FB] border border-indigo-100/80 flex flex-col gap-3">
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-extrabold ${
+                          upcomingLive.status === 'live'
+                            ? 'bg-rose-100 text-rose-600'
+                            : 'bg-sky-100 text-sky-600'
+                        }">
+                          <span class="w-2 h-2 rounded-full ${
+                            upcomingLive.status === 'live' ? 'bg-rose-500 animate-ping' : 'bg-sky-500'
+                          }"></span>
+                          ${upcomingLive.status === 'live' ? 'LIVE SEKARANG' : 'TERJADWAL'}
+                        </span>
+                        <span class="text-xs font-semibold text-slate-500">${escapeHtml(upcomingLive.scheduleTime)}</span>
+                      </div>
+                      <div>
+                        <h3 class="font-bold text-sm text-[#251F67] line-clamp-1">${escapeHtml(upcomingLive.title)}</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">${escapeHtml(upcomingLive.teacherName)} • ${escapeHtml(upcomingLive.className)}</p>
+                      </div>
+                      <button onclick="window.joinLiveSession('${upcomingLive.id}')"
+                        class="w-full py-2.5 px-4 rounded-full bg-[#251F67] hover:bg-[#352D8A] text-white text-xs font-bold transition flex items-center justify-center gap-2">
+                        <i data-lucide="video" class="w-4 h-4 text-[#FFC374]"></i>
+                        <span>Masuk Ruang Live Sekarang</span>
+                      </button>
+                    </div>
+                  `
+                  : `
+                    <div class="my-auto py-4 text-center sm:text-left">
+                      <p class="text-sm text-slate-400 font-medium">
+                        Belum ada jadwal kelas live mendatang. ${
+                          user.role !== 'siswa'
+                            ? 'Buat sesi live baru di menu Kelas Live.'
+                            : 'Nantikan jadwal live dari Bapak/Ibu Guru.'
+                        }
+                      </p>
+                    </div>
+                  `
+              }
+            </div>
+          </div>
+
+          <!-- BARIS 2: RINGKASAN DATA (4 KARTU METRIK + PROGRESS BAR TIPIS) -->
+          <div>
+            <h2 class="text-lg font-extrabold text-[#251F67] mb-3.5">Ringkasan Data</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+              <!-- Kartu 1: Video Belajar -->
+              <div onclick="window.navigateMenu('video')" class="cursor-pointer bg-white rounded-[22px] p-5 shadow-bento hover:-translate-y-0.5 transition">
+                <div class="flex items-center gap-3.5 mb-4">
+                  <div class="w-11 h-11 rounded-full bg-[#EDE9FE] text-[#5B5CE6] flex items-center justify-center shrink-0">
+                    <i data-lucide="play-circle" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                    <div class="font-bold text-sm text-[#251F67]">Video Belajar</div>
+                    <div class="text-xs text-slate-500 font-medium">${state.videos.length} materi tersedia</div>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between text-[11px] font-semibold text-slate-400 mb-1.5">
+                  <span>siap diputar</span>
+                  <span class="text-[#251F67] font-bold">${state.videos.length} video</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-[#5B5CE6] rounded-full transition-all duration-500" style="width: ${vidPercent}%"></div>
+                </div>
+              </div>
+
+              <!-- Kartu 2: Kelas Live -->
+              <div onclick="window.navigateMenu('live')" class="cursor-pointer bg-white rounded-[22px] p-5 shadow-bento hover:-translate-y-0.5 transition">
+                <div class="flex items-center gap-3.5 mb-4">
+                  <div class="w-11 h-11 rounded-full bg-[#FEF3C7] text-amber-600 flex items-center justify-center shrink-0">
+                    <i data-lucide="radio" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                    <div class="font-bold text-sm text-[#251F67]">Kelas Live Guru</div>
+                    <div class="text-xs text-slate-500 font-medium">${state.live_sessions.length} sesi kelas</div>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between text-[11px] font-semibold text-slate-400 mb-1.5">
+                  <span>sedang live</span>
+                  <span class="text-[#251F67] font-bold">${state.live_sessions.filter((l) => l.status === 'live').length} aktif</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-amber-400 rounded-full transition-all duration-500" style="width: ${livePercent}%"></div>
+                </div>
+              </div>
+
+              <!-- Kartu 3: Kuis & Evaluasi -->
+              <div onclick="window.navigateMenu('kuis')" class="cursor-pointer bg-white rounded-[22px] p-5 shadow-bento hover:-translate-y-0.5 transition">
+                <div class="flex items-center gap-3.5 mb-4">
+                  <div class="w-11 h-11 rounded-full bg-[#E0F2FE] text-sky-500 flex items-center justify-center shrink-0">
+                    <i data-lucide="puzzle" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                    <div class="font-bold text-sm text-[#251F67]">Kuis Interaktif</div>
+                    <div class="text-xs text-slate-500 font-medium">${state.quizzes.length} paket kuis</div>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between text-[11px] font-semibold text-slate-400 mb-1.5">
+                  <span>manual & eksternal</span>
+                  <span class="text-[#251F67] font-bold">${state.quizzes.length} kuis</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-sky-400 rounded-full transition-all duration-500" style="width: ${quizPercent}%"></div>
+                </div>
+              </div>
+
+              <!-- Kartu 4: Rata-Rata Nilai -->
+              <div onclick="window.navigateMenu('kuis')" class="cursor-pointer bg-white rounded-[22px] p-5 shadow-bento hover:-translate-y-0.5 transition">
+                <div class="flex items-center gap-3.5 mb-4">
+                  <div class="w-11 h-11 rounded-full bg-[#FFE4E6] text-rose-500 flex items-center justify-center shrink-0">
+                    <i data-lucide="award" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                    <div class="font-bold text-sm text-[#251F67]">Capaian Nilai</div>
+                    <div class="text-xs text-slate-500 font-medium">${relevantResults.length} hasil kuis</div>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between text-[11px] font-semibold text-slate-400 mb-1.5">
+                  <span>rata-rata skor</span>
+                  <span class="text-[#251F67] font-bold">${avgScore !== null ? avgScore + '%' : '0%'}</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-rose-400 rounded-full transition-all duration-500" style="width: ${avgPercent}%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BARIS 3 (ASIMETRIS 7:5): AKSES CEPAT PILL BUTTONS + STATISTIK NILAI GELAP (#251F67) -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+            <!-- Kiri: Akses Cepat (6 Tombol Kapsul 2 Kolom seperti Gambar Referensi) -->
+            <div class="lg:col-span-7">
+              <h2 class="text-lg font-extrabold text-[#251F67] mb-3.5">Akses Cepat</h2>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <!-- Pill 1 -->
+                <button onclick="window.navigateMenu('video')"
+                  class="bg-white hover:bg-indigo-50/60 rounded-full p-2.5 pr-4 shadow-pill flex items-center justify-between transition group">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-[#EDE9FE] text-[#5B5CE6] flex items-center justify-center group-hover:scale-105 transition">
+                      <i data-lucide="play" class="w-4 h-4"></i>
+                    </div>
+                    <span class="font-bold text-sm text-[#251F67]">Tonton Video</span>
+                  </div>
+                  <span class="px-2.5 py-1 rounded-full bg-[#FEF3C7] text-amber-700 text-[11px] font-extrabold">
+                    ${state.videos.length} materi
+                  </span>
+                </button>
+
+                <!-- Pill 2 -->
+                <button onclick="window.navigateMenu('live')"
+                  class="bg-white hover:bg-indigo-50/60 rounded-full p-2.5 pr-4 shadow-pill flex items-center justify-between transition group">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-[#FEF3C7] text-amber-600 flex items-center justify-center group-hover:scale-105 transition">
+                      <i data-lucide="video" class="w-4 h-4"></i>
+                    </div>
+                    <span class="font-bold text-sm text-[#251F67]">Ruang Live Guru</span>
+                  </div>
+                  <span class="w-7 h-7 rounded-full bg-[#E0F2FE] text-sky-600 text-xs font-extrabold flex items-center justify-center">
+                    ${state.live_sessions.length}
+                  </span>
+                </button>
+
+                <!-- Pill 3 -->
+                <button onclick="window.navigateMenu('kuis')"
+                  class="bg-white hover:bg-indigo-50/60 rounded-full p-2.5 pr-4 shadow-pill flex items-center justify-between transition group">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-[#E0F2FE] text-sky-500 flex items-center justify-center group-hover:scale-105 transition">
+                      <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+                    </div>
+                    <span class="font-bold text-sm text-[#251F67]">Kerjakan Kuis</span>
+                  </div>
+                  <span class="px-2.5 py-1 rounded-full bg-[#DCFCE7] text-emerald-700 text-[11px] font-extrabold">
+                    ${relevantResults.length} hasil
+                  </span>
+                </button>
+
+                <!-- Pill 4 -->
+                <button onclick="${user.role !== 'siswa' ? "window.openAddVideoModal()" : "window.navigateMenu('video')"}"
+                  class="bg-white hover:bg-indigo-50/60 rounded-full p-2.5 pr-4 shadow-pill flex items-center justify-between transition group">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-[#FFE4E6] text-rose-500 flex items-center justify-center group-hover:scale-105 transition">
+                      <i data-lucide="${user.role !== 'siswa' ? 'plus-circle' : 'book-open'}" class="w-4 h-4"></i>
+                    </div>
+                    <span class="font-bold text-sm text-[#251F67]">${user.role !== 'siswa' ? 'Sematkan Video' : 'Semua Mapel'}</span>
+                  </div>
+                  <span class="w-7 h-7 rounded-full bg-[#FFE4E6] text-rose-600 text-xs font-extrabold flex items-center justify-center">
+                    ${SUBJECT_LIST.length}
+                  </span>
+                </button>
+
+                <!-- Pill 5 -->
+                <button onclick="${user.role !== 'siswa' ? "window.openAddQuizModal()" : "window.navigateMenu('kuis')"}"
+                  class="bg-white hover:bg-indigo-50/60 rounded-full p-2.5 pr-4 shadow-pill flex items-center justify-between transition group">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-[#EDE9FE] text-[#5B5CE6] flex items-center justify-center group-hover:scale-105 transition">
+                      <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    </div>
+                    <span class="font-bold text-sm text-[#251F67]">${user.role !== 'siswa' ? 'Buat Kuis Baru' : 'Kuis Eksternal'}</span>
+                  </div>
+                  <span class="px-2.5 py-1 rounded-full bg-[#251F67] text-white text-[10px] font-extrabold uppercase">
+                    ${user.role !== 'siswa' ? 'GURU' : 'SERU'}
+                  </span>
+                </button>
+
+                <!-- Pill 6 -->
+                <button onclick="window.navigateMenu('${user.role !== 'siswa' ? 'pengaturan' : 'live'}')"
+                  class="bg-white hover:bg-indigo-50/60 rounded-full p-2.5 pr-4 shadow-pill flex items-center justify-between transition group">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-[#EDE9FE] text-[#5B5CE6] flex items-center justify-center group-hover:scale-105 transition">
+                      <i data-lucide="${user.role !== 'siswa' ? 'settings' : 'message-circle'}" class="w-4 h-4"></i>
+                    </div>
+                    <span class="font-bold text-sm text-[#251F67]">${user.role !== 'siswa' ? 'Pengaturan Sekolah' : 'Tanya Guru Live'}</span>
+                  </div>
+                  ${
+                    user.role !== 'siswa'
+                      ? `<span class="px-2.5 py-1 rounded-full bg-[#251F67] text-white text-[10px] font-extrabold uppercase">ADMIN</span>`
+                      : ''
+                  }
+                </button>
+              </div>
+            </div>
+
+            <!-- Kanan: Kartu Gelap Statistik Nilai (#251F67) + Donut Chart -->
+            <div class="lg:col-span-5 bg-[#251F67] text-white rounded-[28px] p-6 sm:p-7 shadow-xl">
+              <div class="flex items-center justify-between mb-1">
+                <h2 class="text-lg font-extrabold">Statistik Nilai</h2>
+                <div class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-indigo-200">
+                  <i data-lucide="bar-chart-2" class="w-4 h-4"></i>
+                </div>
+              </div>
+
+              <!-- Dropdown Filter Kuis -->
+              <div class="mb-5">
+                <select onchange="window.changeStatsQuizFilter(this.value)"
+                  class="bg-transparent text-xs font-semibold text-indigo-200 focus:outline-none cursor-pointer pr-4">
+                  <option value="all" class="text-[#251F67]" ${state.statsQuizFilter === 'all' ? 'selected' : ''}>Semua kuis</option>
+                  ${state.quizzes
+                    .map(
+                      (q) =>
+                        `<option value="${q.id}" class="text-[#251F67]" ${state.statsQuizFilter === q.id ? 'selected' : ''}>${escapeHtml(q.title)}</option>`
+                    )
+                    .join('')}
+                </select>
+              </div>
+
+              <div class="flex items-center justify-between gap-4">
+                <!-- Metrik Kiri -->
+                <div class="space-y-3.5 text-xs sm:text-sm min-w-[115px]">
+                  <div class="flex items-center justify-between gap-4">
+                    <span class="text-indigo-200">Rata-rata</span>
+                    <span class="font-extrabold">${avgScore !== null ? avgScore : '-'}</span>
+                  </div>
+                  <div class="flex items-center justify-between gap-4">
+                    <span class="text-indigo-200">Tertinggi</span>
+                    <span class="font-extrabold text-emerald-300">${maxScore !== null ? maxScore : '-'}</span>
+                  </div>
+                  <div class="flex items-center justify-between gap-4">
+                    <span class="text-indigo-200">Terendah</span>
+                    <span class="font-extrabold text-amber-300">${minScore !== null ? minScore : '-'}</span>
+                  </div>
+                </div>
+
+                <!-- Donut Chart SVG Tengah -->
+                <div class="relative w-28 h-28 flex items-center justify-center shrink-0">
+                  <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="#352D8A" stroke-width="11" />
+                    ${
+                      totalScores > 0
+                        ? `
+                          <circle cx="50" cy="50" r="42" fill="none" stroke="#38BDF8" stroke-width="11"
+                            stroke-dasharray="${segA} ${circumference}" stroke-dashoffset="0" />
+                          <circle cx="50" cy="50" r="42" fill="none" stroke="#FBBF24" stroke-width="11"
+                            stroke-dasharray="${segB} ${circumference}" stroke-dashoffset="-${segA}" />
+                          <circle cx="50" cy="50" r="42" fill="none" stroke="#A78BFA" stroke-width="11"
+                            stroke-dasharray="${segC} ${circumference}" stroke-dashoffset="-${segA + segB}" />
+                          <circle cx="50" cy="50" r="42" fill="none" stroke="#F43F5E" stroke-width="11"
+                            stroke-dasharray="${segD} ${circumference}" stroke-dashoffset="-${segA + segB + segC}" />
+                        `
+                        : ''
+                    }
+                  </svg>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-2">
+                    <span class="text-lg font-extrabold leading-none">${avgScore !== null ? avgScore : '-'}</span>
+                    <span class="text-[9px] text-rose-300 font-semibold mt-1 leading-tight">
+                      ${totalScores > 0 ? `${totalScores} nilai` : 'belum ada nilai'}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Legenda Kanan -->
+                <div class="space-y-2 text-[11px] font-semibold">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+                    <span class="text-indigo-100">≥ 85 (${countA})</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                    <span class="text-indigo-100">70 – 84 (${countB})</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-violet-400"></span>
+                    <span class="text-indigo-100">55 – 69 (${countC})</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                    <span class="text-indigo-100">&lt; 55 (${countD})</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 13. HALAMAN 2: VIDEO BELAJAR (EMBED LINK & LANGSUNG DIPUTAR)
+    // =========================================================================
+    function renderVideoPage() {
+      const canManage = state.currentUser.role === 'admin' || state.currentUser.role === 'guru';
+
+      // Filter video
+      const filteredVideos = state.videos.filter((v) => {
+        const matchSubj = state.videoSubjectFilter === 'Semua' || v.subject === state.videoSubjectFilter;
+        const matchQuery =
+          !state.videoSearch ||
+          v.title.toLowerCase().includes(state.videoSearch.toLowerCase()) ||
+          v.subject.toLowerCase().includes(state.videoSearch.toLowerCase());
+        return matchSubj && matchQuery;
+      });
+
+      const currentPlaying = state.activeVideo || filteredVideos[0] || null;
+
+      return `
+        <div class="space-y-6 fade-in">
+          <!-- Header & Tombol Sematkan Video -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 class="text-2xl font-extrabold text-[#251F67]">Video Pembelajaran</h1>
+              <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Klik materi video di bawah untuk memutar pelajaran langsung di dalam aplikasi.</p>
+            </div>
+            ${
+              canManage
+                ? `
+                  <button onclick="window.openAddVideoModal()"
+                    class="px-5 py-3 rounded-full bg-[#5B5CE6] hover:bg-[#4A4BD4] text-white text-sm font-bold shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 transition">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>Sematkan Link Video</span>
+                  </button>
+                `
+                : ''
+            }
+          </div>
+
+          <!-- Pemutar Video Utama (Langsung Diputar In-App) -->
+          ${
+            currentPlaying
+              ? `
+                <div class="bg-white rounded-[28px] p-5 sm:p-7 shadow-bento grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                  <div class="lg:col-span-8">
+                    <div class="aspect-video-box shadow-md">
+                      <iframe src="${escapeHtml(currentPlaying.embedUrl)}"
+                        title="${escapeHtml(currentPlaying.title)}"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                        allowfullscreen></iframe>
+                    </div>
+                  </div>
+                  <div class="lg:col-span-4 flex flex-col justify-between h-full space-y-4">
+                    <div>
+                      <div class="flex flex-wrap items-center gap-2 mb-3">
+                        <span class="px-3 py-1 rounded-full bg-[#EDE9FE] text-[#5B5CE6] text-xs font-extrabold">
+                          ${escapeHtml(currentPlaying.subject)}
+                        </span>
+                        <span class="px-3 py-1 rounded-full bg-[#FEF3C7] text-amber-700 text-xs font-bold">
+                          ${escapeHtml(currentPlaying.className)}
+                        </span>
+                      </div>
+                      <h2 class="text-xl font-extrabold text-[#251F67] leading-snug mb-2">
+                        ${escapeHtml(currentPlaying.title)}
+                      </h2>
+                      <p class="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                        ${escapeHtml(currentPlaying.description || 'Simak penjelasan materi video ini dengan saksama.')}
+                      </p>
+                    </div>
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                      <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-full bg-[#251F67] text-white flex items-center justify-center font-bold text-xs">
+                          ${escapeHtml((currentPlaying.teacherName || 'G')[0])}
+                        </div>
+                        <div>
+                          <div class="text-xs font-bold text-[#251F67]">${escapeHtml(currentPlaying.teacherName)}</div>
+                          <div class="text-[11px] text-slate-400">Pengajar Materi</div>
+                        </div>
+                      </div>
+                      ${
+                        canManage
+                          ? `
+                            <button onclick="window.deleteVideoItem('${currentPlaying.id}')" title="Hapus Video"
+                              class="p-2.5 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 transition">
+                              <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                          `
+                          : ''
+                      }
+                    </div>
+                  </div>
+                </div>
+              `
+              : ''
+          }
+
+          <!-- Filter Mata Pelajaran & Pencarian -->
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div class="flex items-center gap-2 overflow-x-auto pb-1">
+              ${['Semua', ...SUBJECT_LIST]
+                .map(
+                  (subj) => `
+                    <button onclick="window.filterVideoSubject('${subj}')"
+                      class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition ${
+                        state.videoSubjectFilter === subj
+                          ? 'bg-[#251F67] text-white shadow-sm'
+                          : 'bg-white text-slate-600 hover:bg-indigo-50'
+                      }">
+                      ${subj}
+                    </button>
+                  `
+                )
+                .join('')}
+            </div>
+
+            <div class="relative w-full md:w-64">
+              <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-2.5"></i>
+              <input type="text" value="${escapeHtml(state.videoSearch)}" oninput="window.searchVideo(this.value)"
+                placeholder="Cari judul video..."
+                class="w-full pl-10 pr-4 py-2 rounded-full bg-white text-xs font-semibold text-[#251F67] shadow-sm focus:outline-none focus:ring-2 focus:ring-[#5B5CE6]" />
+            </div>
+          </div>
+
+          <!-- Daftar Koleksi Video -->
+          ${
+            filteredVideos.length === 0
+              ? `
+                <div class="bg-white rounded-[28px] p-12 text-center shadow-bento">
+                  <div class="w-16 h-16 rounded-full bg-[#EDE9FE] text-[#5B5CE6] flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="film" class="w-8 h-8"></i>
+                  </div>
+                  <h3 class="text-lg font-extrabold text-[#251F67] mb-1">Belum Ada Video Pembelajaran</h3>
+                  <p class="text-sm text-slate-500 max-w-md mx-auto">
+                    ${
+                      canManage
+                        ? 'Klik tombol "Sematkan Link Video" di atas untuk menambahkan tautan video YouTube atau Google Drive.'
+                        : 'Bapak/Ibu Guru belum menambahkan video untuk kategori ini.'
+                    }
+                  </p>
+                </div>
+              `
+              : `
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  ${filteredVideos
+                    .map((vid) => {
+                      const isSelected = currentPlaying && currentPlaying.id === vid.id;
+                      return `
+                        <div onclick="window.selectVideoToPlay('${vid.id}')"
+                          class="cursor-pointer bg-white rounded-[24px] p-5 shadow-bento border-2 transition hover:-translate-y-1 flex flex-col justify-between ${
+                            isSelected ? 'border-[#5B5CE6]' : 'border-transparent'
+                          }">
+                          <div>
+                            <div class="flex items-center justify-between gap-2 mb-3">
+                              <span class="px-3 py-1 rounded-full bg-[#EDE9FE] text-[#5B5CE6] text-[11px] font-extrabold">
+                                ${escapeHtml(vid.subject)}
+                              </span>
+                              <span class="text-[11px] font-bold text-slate-400">${escapeHtml(vid.className)}</span>
+                            </div>
+                            <h3 class="font-extrabold text-base text-[#251F67] line-clamp-2 mb-2">${escapeHtml(vid.title)}</h3>
+                            <p class="text-xs text-slate-500 line-clamp-2 mb-4">${escapeHtml(vid.description || '')}</p>
+                          </div>
+
+                          <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                            <span class="text-xs font-semibold text-slate-500">${escapeHtml(vid.teacherName)}</span>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${
+                              isSelected ? 'bg-[#5B5CE6] text-white' : 'bg-[#F4F6FB] text-[#251F67]'
+                            }">
+                              <i data-lucide="play" class="w-3.5 h-3.5"></i>
+                              <span>${isSelected ? 'Sedang Diputar' : 'Putar'}</span>
+                            </span>
+                          </div>
+                        </div>
+                      `;
+                    })
+                    .join('')}
+                </div>
+              `
+          }
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 14. HALAMAN 3: KELAS LIVE DENGAN GURU (VIDEO LIVE + CHAT & PRESENSI)
+    // =========================================================================
+    function renderLivePage() {
+      const canManage = state.currentUser.role === 'admin' || state.currentUser.role === 'guru';
+
+      // Jika sedang berada di dalam ruang Live aktif
+      if (state.activeLiveSession) {
+        const session = state.activeLiveSession;
+        const sessionMessages = state.live_messages.filter((m) => m.sessionId === session.id);
+        const attendees = Array.isArray(session.attendees) ? session.attendees : [];
+
+        return `
+          <div class="space-y-5 fade-in">
+            <!-- Bar Atas Ruang Live -->
+            <div class="bg-white rounded-[24px] p-4 sm:p-5 shadow-bento flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <button onclick="window.leaveLiveSession()"
+                  class="w-10 h-10 rounded-full bg-[#F4F6FB] hover:bg-indigo-100 text-[#251F67] flex items-center justify-center transition">
+                  <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                </button>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-600 text-[10px] font-extrabold uppercase">
+                      ${session.status === 'live' ? '● LIVE' : session.status}
+                    </span>
+                    <span class="text-xs font-bold text-[#5B5CE6]">${escapeHtml(session.subject)} • ${escapeHtml(session.className)}</span>
+                  </div>
+                  <h1 class="text-base sm:text-lg font-extrabold text-[#251F67] mt-0.5">${escapeHtml(session.title)}</h1>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <a href="${escapeHtml(session.meetingUrl)}" target="_blank" rel="noopener noreferrer"
+                  class="px-4 py-2 rounded-full bg-[#F4F6FB] hover:bg-indigo-50 text-[#251F67] text-xs font-bold flex items-center gap-1.5 transition">
+                  <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                  <span>Buka Tab Baru</span>
+                </a>
+                ${
+                  canManage
+                    ? `
+                      <button onclick="window.toggleLiveStatus('${session.id}', '${session.status === 'live' ? 'ended' : 'live'}')"
+                        class="px-4 py-2 rounded-full ${
+                          session.status === 'live' ? 'bg-rose-600 text-white' : 'bg-emerald-600 text-white'
+                        } text-xs font-bold transition">
+                        ${session.status === 'live' ? 'Akhiri Sesi Live' : 'Mulai Live Sekarang'}
+                      </button>
+                    `
+                    : ''
+                }
+              </div>
+            </div>
+
+            <!-- Grid Ruang Tatap Muka Live + Panel Tanya Jawab -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+              <!-- Layar Video Live (8 Kolom) -->
+              <div class="lg:col-span-8 space-y-4">
+                <div class="bg-white rounded-[28px] p-4 shadow-bento">
+                  <div class="aspect-video-box">
+                    <iframe src="${escapeHtml(session.embedUrl)}"
+                      allow="camera; microphone; fullscreen; display-capture; autoplay"
+                      allowfullscreen></iframe>
+                  </div>
+                </div>
+
+                <!-- Daftar Hadir Siswa Otomatis -->
+                <div class="bg-white rounded-[24px] p-5 shadow-bento">
+                  <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-sm font-extrabold text-[#251F67] flex items-center gap-2">
+                      <i data-lucide="user-check" class="w-4 h-4 text-emerald-500"></i>
+                      <span>Daftar Hadir Otomatis (${attendees.length} Peserta)</span>
+                    </h3>
+                    <span class="text-[11px] font-semibold text-slate-400">Tercatat saat bergabung</span>
+                  </div>
+                  <div class="flex flex-wrap gap-2">
+                    ${
+                      attendees.length === 0
+                        ? '<span class="text-xs text-slate-400">Belum ada peserta bergabung.</span>'
+                        : attendees
+                            .map(
+                              (name) => `
+                                <span class="px-3 py-1 rounded-full bg-[#DCFCE7] text-emerald-700 text-xs font-bold">
+                                  ✓ ${escapeHtml(name)}
+                                </span>
+                              `
+                            )
+                            .join('')
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <!-- Panel Diskusi & Tanya Guru Real-Time (4 Kolom) -->
+              <div class="lg:col-span-4 bg-white rounded-[28px] p-5 shadow-bento flex flex-col h-[520px]">
+                <div class="pb-3 border-b border-slate-100 flex items-center justify-between">
+                  <h3 class="font-extrabold text-sm text-[#251F67] flex items-center gap-2">
+                    <i data-lucide="message-circle" class="w-4 h-4 text-[#5B5CE6]"></i>
+                    <span>Tanya Jawab Kelas</span>
+                  </h3>
+                  <span class="text-[11px] font-bold text-slate-400">${sessionMessages.length} pesan</span>
+                </div>
+
+                <div id="live-chat-list" class="flex-1 overflow-y-auto py-4 space-y-3">
+                  ${
+                    sessionMessages.length === 0
+                      ? `<p class="text-xs text-slate-400 text-center my-auto py-8">Belum ada pesan. Tulis pertanyaanmu untuk guru di bawah!</p>`
+                      : sessionMessages
+                          .map((m) => {
+                            const isGuru = m.senderRole === 'guru' || m.senderRole === 'admin';
+                            return `
+                              <div class="p-3 rounded-2xl ${isGuru ? 'bg-[#251F67] text-white' : 'bg-[#F4F6FB] text-[#251F67]'}">
+                                <div class="flex items-center justify-between gap-2 mb-1">
+                                  <span class="text-[11px] font-extrabold ${isGuru ? 'text-[#FFC374]' : 'text-[#5B5CE6]'}">
+                                    ${escapeHtml(m.senderName)} ${isGuru ? '(Guru)' : ''}
+                                  </span>
+                                  <span class="text-[10px] opacity-60">${escapeHtml(m.createdAt || '')}</span>
+                                </div>
+                                <p class="text-xs leading-relaxed">${escapeHtml(m.text)}</p>
+                              </div>
+                            `;
+                          })
+                          .join('')
+                  }
+                </div>
+
+                <form onsubmit="window.sendLiveMessage(event, '${session.id}')" class="pt-3 border-t border-slate-100 flex items-center gap-2">
+                  <input id="live-chat-input" type="text" placeholder="Ketik pertanyaan..." required
+                    class="flex-1 px-4 py-2.5 rounded-full bg-[#F4F6FB] text-xs font-semibold text-[#251F67] focus:outline-none focus:ring-2 focus:ring-[#5B5CE6]" />
+                  <button type="submit"
+                    class="w-10 h-10 rounded-full bg-[#5B5CE6] hover:bg-[#4A4BD4] text-white flex items-center justify-center shrink-0 transition">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Daftar Sesi Kelas Live
+      return `
+        <div class="space-y-6 fade-in">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 class="text-2xl font-extrabold text-[#251F67]">Kelas Live Bersama Guru</h1>
+              <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Belajar tatap muka virtual dan tanya jawab langsung dengan guru.</p>
+            </div>
+            ${
+              canManage
+                ? `
+                  <button onclick="window.openAddLiveModal()"
+                    class="px-5 py-3 rounded-full bg-[#251F67] hover:bg-[#352D8A] text-white text-sm font-bold shadow-lg flex items-center justify-center gap-2 transition">
+                    <i data-lucide="video" class="w-4 h-4 text-[#FFC374]"></i>
+                    <span>Buat Jadwal Live</span>
+                  </button>
+                `
+                : ''
+            }
+          </div>
+
+          ${
+            state.live_sessions.length === 0
+              ? `
+                <div class="bg-white rounded-[28px] p-12 text-center shadow-bento">
+                  <div class="w-16 h-16 rounded-full bg-[#FEF3C7] text-amber-600 flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="video" class="w-8 h-8"></i>
+                  </div>
+                  <h3 class="text-lg font-extrabold text-[#251F67] mb-1">Belum Ada Jadwal Kelas Live</h3>
+                  <p class="text-sm text-slate-500 max-w-md mx-auto">
+                    ${
+                      canManage
+                        ? 'Buat sesi live baru menggunakan ruang Jitsi Meet otomatis atau tautan YouTube Live.'
+                        : 'Belum ada sesi tatap muka live yang dijadwalkan saat ini.'
+                    }
+                  </p>
+                </div>
+              `
+              : `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  ${state.live_sessions
+                    .map((session) => {
+                      const isLive = session.status === 'live';
+                      const isEnded = session.status === 'ended';
+                      return `
+                        <div class="bg-white rounded-[28px] p-6 shadow-bento flex flex-col justify-between gap-4">
+                          <div>
+                            <div class="flex items-center justify-between gap-2 mb-3">
+                              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold ${
+                                isLive
+                                  ? 'bg-rose-100 text-rose-600'
+                                  : isEnded
+                                  ? 'bg-slate-100 text-slate-500'
+                                  : 'bg-sky-100 text-sky-600'
+                              }">
+                                <span class="w-2 h-2 rounded-full ${
+                                  isLive ? 'bg-rose-500 animate-ping' : isEnded ? 'bg-slate-400' : 'bg-sky-500'
+                                }"></span>
+                                ${isLive ? 'LIVE SEKARANG' : isEnded ? 'SELESAI' : 'TERJADWAL'}
+                              </span>
+                              <span class="text-xs font-bold text-slate-400">${escapeHtml(session.scheduleTime)}</span>
+                            </div>
+
+                            <h3 class="text-lg font-extrabold text-[#251F67] mb-1">${escapeHtml(session.title)}</h3>
+                            <p class="text-xs font-semibold text-[#5B5CE6] mb-3">
+                              ${escapeHtml(session.subject)} • ${escapeHtml(session.className)}
+                            </p>
+                            <div class="flex items-center gap-2 text-xs text-slate-500">
+                              <i data-lucide="user" class="w-4 h-4 text-slate-400"></i>
+                              <span>Pengajar: <strong>${escapeHtml(session.teacherName)}</strong></span>
+                            </div>
+                          </div>
+
+                          <div class="pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
+                            <button onclick="window.joinLiveSession('${session.id}')"
+                              class="flex-1 py-3 px-5 rounded-full ${
+                                isLive ? 'bg-[#5B5CE6] hover:bg-[#4A4BD4] text-white' : 'bg-[#251F67] hover:bg-[#352D8A] text-white'
+                              } text-xs font-bold transition flex items-center justify-center gap-2">
+                              <i data-lucide="video" class="w-4 h-4"></i>
+                              <span>${isLive ? 'Gabung Kelas Live' : 'Masuk Ruang Kelas'}</span>
+                            </button>
+                            ${
+                              canManage
+                                ? `
+                                  <button onclick="window.deleteLiveSession('${session.id}')" title="Hapus Jadwal"
+                                    class="p-3 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 transition">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                  </button>
+                                `
+                                : ''
+                            }
+                          </div>
+                        </div>
+                      `;
+                    })
+                    .join('')}
+                </div>
+              `
+          }
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 15. HALAMAN 4: KUIS & EVALUASI (MANUAL & INTEGRASI KUIS EKSTERNAL)
+    // =========================================================================
+    function renderQuizPage() {
+      const user = state.currentUser;
+      const canManage = user.role === 'admin' || user.role === 'guru';
+
+      // Tampilan Mengerjakan Kuis (Mode Manual atau Mode Integrasi Eksternal)
+      if (state.activeQuizTake) {
+        const quiz = state.activeQuizTake;
+
+        // MODE B: INTEGRASI APLIKASI KUIS EKSTERNAL (Wordwall, Quizizz, Kahoot, Google Forms)
+        if (quiz.mode === 'external') {
+          return `
+            <div class="space-y-5 fade-in">
+              <div class="bg-white rounded-[24px] p-4 sm:p-5 shadow-bento flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <button onclick="window.closeQuizRunner()"
+                    class="w-10 h-10 rounded-full bg-[#F4F6FB] hover:bg-indigo-100 text-[#251F67] flex items-center justify-center transition">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                  </button>
+                  <div>
+                    <span class="px-2.5 py-0.5 rounded-full bg-[#FEF3C7] text-amber-700 text-[10px] font-extrabold uppercase">
+                      Integrasi ${escapeHtml(quiz.externalPlatform || 'Kuis Luar')}
+                    </span>
+                    <h1 class="text-base sm:text-lg font-extrabold text-[#251F67] mt-0.5">${escapeHtml(quiz.title)}</h1>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <a href="${escapeHtml(quiz.externalUrl)}" target="_blank" rel="noopener noreferrer"
+                    class="px-4 py-2.5 rounded-full bg-[#F4F6FB] hover:bg-indigo-50 text-[#251F67] text-xs font-bold flex items-center gap-1.5 transition">
+                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                    <span>Layar Penuh</span>
+                  </a>
+                  <button onclick="window.submitExternalQuizCompletion('${quiz.id}')"
+                    class="px-5 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-md transition">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                    <span>Tandai Sudah Selesai</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="bg-white rounded-[28px] p-3 sm:p-4 shadow-bento">
+                <div class="w-full h-[68vh] min-h-[460px] rounded-2xl overflow-hidden bg-slate-100">
+                  <iframe src="${escapeHtml(quiz.embedUrl)}"
+                    class="w-full h-full border-0"
+                    allow="fullscreen; autoplay"
+                    allowfullscreen></iframe>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        // MODE A: KUIS MANUAL INTERAKTIF BUILT-IN
+        const questions = quiz.questions || [];
+        const currentQ = questions[state.quizCurrentStep];
+        const mins = Math.floor(state.quizTimerSeconds / 60);
+        const secs = state.quizTimerSeconds % 60;
+        const formattedTime = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+        return `
+          <div class="max-w-3xl mx-auto space-y-5 fade-in">
+            <!-- Header Ujian -->
+            <div class="bg-white rounded-[24px] p-5 shadow-bento flex items-center justify-between gap-4">
+              <div>
+                <span class="text-xs font-bold text-[#5B5CE6]">${escapeHtml(quiz.subject)} • Soal ${state.quizCurrentStep + 1} dari ${questions.length}</span>
+                <h1 class="text-lg font-extrabold text-[#251F67]">${escapeHtml(quiz.title)}</h1>
+              </div>
+              <div class="px-4 py-2 rounded-full bg-[#251F67] text-[#FFC374] font-mono font-extrabold text-sm flex items-center gap-2">
+                <i data-lucide="clock" class="w-4 h-4"></i>
+                <span>${formattedTime}</span>
+              </div>
+            </div>
+
+            <!-- Navigasi Nomor Soal Ramah SD/SMP -->
+            <div class="flex flex-wrap gap-2">
+              ${questions
+                .map((_, idx) => {
+                  const answered = state.quizAnswers[idx] !== undefined;
+                  const isCurrent = idx === state.quizCurrentStep;
+                  return `
+                    <button onclick="window.jumpQuizStep(${idx})"
+                      class="w-10 h-10 rounded-full text-xs font-extrabold transition ${
+                        isCurrent
+                          ? 'bg-[#251F67] text-white ring-4 ring-indigo-200'
+                          : answered
+                          ? 'bg-emerald-500 text-white'
+                          : 'bg-white text-slate-600 hover:bg-indigo-50'
+                      }">
+                      ${idx + 1}
+                    </button>
+                  `;
+                })
+                .join('')}
+            </div>
+
+            <!-- Kartu Pertanyaan Besar -->
+            ${
+              currentQ
+                ? `
+                  <div class="bg-white rounded-[28px] p-6 sm:p-8 shadow-bento space-y-6">
+                    <div class="text-base sm:text-lg font-extrabold text-[#251F67] leading-relaxed">
+                      ${state.quizCurrentStep + 1}. ${escapeHtml(currentQ.question)}
+                    </div>
+
+                    <div class="space-y-3">
+                      ${(currentQ.options || [])
+                        .map((opt, optIdx) => {
+                          const letters = ['A', 'B', 'C', 'D'];
+                          const isSelected = state.quizAnswers[state.quizCurrentStep] === optIdx;
+                          return `
+                            <button type="button" onclick="window.selectQuizOption(${state.quizCurrentStep}, ${optIdx})"
+                              class="w-full text-left p-4 rounded-2xl border-2 transition flex items-center gap-4 ${
+                                isSelected
+                                  ? 'border-[#5B5CE6] bg-[#EDE9FE]/50 text-[#251F67]'
+                                  : 'border-slate-100 bg-[#F4F6FB]/60 hover:bg-[#F4F6FB] text-slate-700'
+                              }">
+                              <span class="w-9 h-9 rounded-full flex items-center justify-center font-extrabold text-sm shrink-0 ${
+                                isSelected ? 'bg-[#5B5CE6] text-white' : 'bg-white text-[#251F67] shadow-sm'
+                              }">
+                                ${letters[optIdx]}
+                              </span>
+                              <span class="font-bold text-sm sm:text-base">${escapeHtml(opt)}</span>
+                            </button>
+                          `;
+                        })
+                        .join('')}
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
+                      <button type="button" onclick="window.prevQuizStep()" ${state.quizCurrentStep === 0 ? 'disabled' : ''}
+                        class="px-5 py-2.5 rounded-full bg-slate-100 disabled:opacity-40 text-[#251F67] text-xs font-bold transition">
+                        ← Sebelumnya
+                      </button>
+
+                      ${
+                        state.quizCurrentStep < questions.length - 1
+                          ? `
+                            <button type="button" onclick="window.nextQuizStep()"
+                              class="px-6 py-2.5 rounded-full bg-[#251F67] hover:bg-[#352D8A] text-white text-xs font-bold transition">
+                              Selanjutnya →
+                            </button>
+                          `
+                          : `
+                            <button type="button" onclick="window.finishManualQuiz()"
+                              class="px-6 py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-lg transition flex items-center gap-2">
+                              <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                              <span>Selesai & Lihat Nilai</span>
+                            </button>
+                          `
+                      }
+                    </div>
+                  </div>
+                `
+                : ''
+            }
+          </div>
+        `;
+      }
+
+      // Daftar Kuis & Riwayat Nilai
+      const filteredQuizzes = state.quizzes.filter(
+        (q) => state.quizSubjectFilter === 'Semua' || q.subject === state.quizSubjectFilter
+      );
+
+      return `
+        <div class="space-y-6 fade-in">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 class="text-2xl font-extrabold text-[#251F67]">Kuis & Evaluasi Belajar</h1>
+              <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Kerjakan kuis pilihan ganda langsung atau kuis interaktif dari Wordwall, Quizizz, & Kahoot.</p>
+            </div>
+            ${
+              canManage
+                ? `
+                  <button onclick="window.openAddQuizModal()"
+                    class="px-5 py-3 rounded-full bg-[#5B5CE6] hover:bg-[#4A4BD4] text-white text-sm font-bold shadow-lg shadow-indigo-200 flex items-center justify-center gap-2 transition">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>Buat / Sematkan Kuis</span>
+                  </button>
+                `
+                : ''
+            }
+          </div>
+
+          <!-- Filter Mapel -->
+          <div class="flex items-center gap-2 overflow-x-auto pb-1">
+            ${['Semua', ...SUBJECT_LIST]
+              .map(
+                (subj) => `
+                  <button onclick="window.filterQuizSubject('${subj}')"
+                    class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition ${
+                      state.quizSubjectFilter === subj
+                        ? 'bg-[#251F67] text-white shadow-sm'
+                        : 'bg-white text-slate-600 hover:bg-indigo-50'
+                    }">
+                    ${subj}
+                  </button>
+                `
+              )
+              .join('')}
+          </div>
+
+          <!-- Grid Daftar Kuis -->
+          ${
+            filteredQuizzes.length === 0
+              ? `
+                <div class="bg-white rounded-[28px] p-12 text-center shadow-bento">
+                  <div class="w-16 h-16 rounded-full bg-[#E0F2FE] text-sky-500 flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="clipboard-check" class="w-8 h-8"></i>
+                  </div>
+                  <h3 class="text-lg font-extrabold text-[#251F67] mb-1">Belum Ada Kuis Tersedia</h3>
+                  <p class="text-sm text-slate-500 max-w-md mx-auto">
+                    ${
+                      canManage
+                        ? 'Klik tombol "Buat / Sematkan Kuis" untuk menginput soal manual atau menempelkan link kuis dari aplikasi luar.'
+                        : 'Belum ada kuis yang dibagikan oleh guru pada mata pelajaran ini.'
+                    }
+                  </p>
+                </div>
+              `
+              : `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  ${filteredQuizzes
+                    .map((q) => {
+                      const isExternal = q.mode === 'external';
+                      const myResult = state.quiz_results.find(
+                        (r) => r.quizId === q.id && (user.role === 'siswa' ? r.studentId === user.id : true)
+                      );
+                      return `
+                        <div class="bg-white rounded-[26px] p-6 shadow-bento flex flex-col justify-between gap-4">
+                          <div>
+                            <div class="flex items-center justify-between gap-2 mb-3">
+                              <span class="px-3 py-1 rounded-full text-[11px] font-extrabold ${
+                                isExternal
+                                  ? 'bg-[#FEF3C7] text-amber-700'
+                                  : 'bg-[#EDE9FE] text-[#5B5CE6]'
+                              }">
+                                ${isExternal ? `🔗 ${escapeHtml(q.externalPlatform || 'Kuis Luar')}` : `📝 Kuis Manual (${(q.questions || []).length} Soal)`}
+                              </span>
+                              <span class="text-[11px] font-bold text-slate-400">${q.durationMinutes || 10} Menit</span>
+                            </div>
+
+                            <h3 class="text-base font-extrabold text-[#251F67] mb-1">${escapeHtml(q.title)}</h3>
+                            <p class="text-xs font-semibold text-slate-500 mb-3">${escapeHtml(q.subject)} • ${escapeHtml(q.className)}</p>
+
+                            ${
+                              user.role === 'siswa' && myResult
+                                ? `
+                                  <div class="p-3 rounded-2xl bg-[#DCFCE7] text-emerald-800 text-xs font-bold flex items-center justify-between">
+                                    <span>Nilai Kamu:</span>
+                                    <span class="text-base font-extrabold">${myResult.score}</span>
+                                  </div>
+                                `
+                                : ''
+                            }
+                          </div>
+
+                          <div class="pt-3 border-t border-slate-100 flex items-center gap-2">
+                            <button onclick="window.startQuiz('${q.id}')"
+                              class="flex-1 py-3 px-4 rounded-full bg-[#251F67] hover:bg-[#352D8A] text-white text-xs font-bold transition flex items-center justify-center gap-2">
+                              <i data-lucide="play-circle" class="w-4 h-4 text-[#FFC374]"></i>
+                              <span>${isExternal ? 'Buka Kuis Interaktif' : 'Mulai Kerjakan'}</span>
+                            </button>
+                            ${
+                              canManage
+                                ? `
+                                  <button onclick="window.deleteQuizItem('${q.id}')" title="Hapus Kuis"
+                                    class="p-3 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 transition">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                  </button>
+                                `
+                                : ''
+                            }
+                          </div>
+                        </div>
+                      `;
+                    })
+                    .join('')}
+                </div>
+              `
+          }
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 16. HALAMAN 5: KELOLA KELAS, PENGGUNA & REKAP NILAI (ADMIN & GURU)
+    // =========================================================================
+    function renderManagePage() {
+      const tabs = [
+        { id: 'siswa', label: 'Data Siswa', icon: 'users' },
+        { id: 'guru', label: 'Data Guru', icon: 'user-check' },
+        { id: 'kelas', label: 'Data Kelas', icon: 'school' },
+        { id: 'nilai', label: 'Rekap Nilai Kuis', icon: 'award' }
+      ];
+
+      let contentHtml = '';
+
+      if (state.manageTab === 'siswa' || state.manageTab === 'guru') {
+        const targetRole = state.manageTab;
+        const list = state.users.filter((u) => u.role === targetRole);
+        contentHtml = `
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base font-extrabold text-[#251F67]">Daftar Akun ${targetRole === 'siswa' ? 'Siswa SD/SMP' : 'Guru Pengajar'} (${list.length})</h3>
+            <button onclick="window.openAddUserModal('${targetRole}')"
+              class="px-4 py-2.5 rounded-full bg-[#5B5CE6] hover:bg-[#4A4BD4] text-white text-xs font-bold flex items-center gap-1.5 transition">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>Tambah ${targetRole === 'siswa' ? 'Siswa' : 'Guru'}</span>
+            </button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-slate-100 text-[11px] uppercase tracking-wider text-slate-400">
+                  <th class="py-3 px-4">Nama Lengkap</th>
+                  <th class="py-3 px-4">Username / NISN</th>
+                  <th class="py-3 px-4">Kata Sandi</th>
+                  <th class="py-3 px-4">Kelas</th>
+                  <th class="py-3 px-4 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
+                ${
+                  list.length === 0
+                    ? `<tr><td colspan="5" class="py-8 text-center text-slate-400">Belum ada data ${targetRole}.</td></tr>`
+                    : list
+                        .map(
+                          (u) => `
+                            <tr class="hover:bg-[#F4F6FB]/60">
+                              <td class="py-3.5 px-4 font-bold text-[#251F67]">${escapeHtml(u.name)}</td>
+                              <td class="py-3.5 px-4 font-mono text-xs text-slate-600">${escapeHtml(u.username)}</td>
+                              <td class="py-3.5 px-4 font-mono text-xs text-slate-500">${escapeHtml(u.password)}</td>
+                              <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-full bg-[#EDE9FE] text-[#5B5CE6] text-xs font-bold">${escapeHtml(u.className || '-')}</span></td>
+                              <td class="py-3.5 px-4 text-right">
+                                <button onclick="window.deleteUserItem('${u.id}')" class="p-2 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 transition">
+                                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                              </td>
+                            </tr>
+                          `
+                        )
+                        .join('')
+                }
+              </tbody>
+            </table>
+          </div>
+        `;
+      } else if (state.manageTab === 'kelas') {
+        contentHtml = `
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base font-extrabold text-[#251F67]">Daftar Rombongan Belajar (${state.classes.length})</h3>
+            <button onclick="window.openAddClassModal()"
+              class="px-4 py-2.5 rounded-full bg-[#5B5CE6] hover:bg-[#4A4BD4] text-white text-xs font-bold flex items-center gap-1.5 transition">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              <span>Tambah Kelas</span>
+            </button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            ${
+              state.classes.length === 0
+                ? `<p class="col-span-full py-8 text-center text-sm text-slate-400">Belum ada data kelas.</p>`
+                : state.classes
+                    .map(
+                      (c) => `
+                        <div class="p-4 rounded-2xl bg-[#F4F6FB] flex items-center justify-between">
+                          <div>
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${
+                              c.level === 'SD' ? 'bg-[#FEF3C7] text-amber-700' : 'bg-[#E0F2FE] text-sky-700'
+                            }">Jenjang ${escapeHtml(c.level)}</span>
+                            <h4 class="font-extrabold text-sm text-[#251F67] mt-1">${escapeHtml(c.name)}</h4>
+                            <p class="text-xs text-slate-500">Wali: ${escapeHtml(c.teacherName || '-')}</p>
+                          </div>
+                          <button onclick="window.deleteClassItem('${c.id}')" class="p-2 rounded-full bg-white text-rose-600 hover:bg-rose-50 transition">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                          </button>
+                        </div>
+                      `
+                    )
+                    .join('')
+            }
+          </div>
+        `;
+      } else if (state.manageTab === 'nilai') {
+        contentHtml = `
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-base font-extrabold text-[#251F67]">Rekap Nilai Kuis Siswa (${state.quiz_results.length})</h3>
+            <span class="text-xs text-slate-400">Otomatis tersinkron ke Grafik Beranda</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-slate-100 text-[11px] uppercase tracking-wider text-slate-400">
+                  <th class="py-3 px-4">Nama Siswa</th>
+                  <th class="py-3 px-4">Judul Kuis</th>
+                  <th class="py-3 px-4">Mode</th>
+                  <th class="py-3 px-4">Skor</th>
+                  <th class="py-3 px-4 text-right">Ubah Nilai / Hapus</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
+                ${
+                  state.quiz_results.length === 0
+                    ? `<tr><td colspan="5" class="py-8 text-center text-slate-400">Belum ada hasil pengerjaan kuis.</td></tr>`
+                    : state.quiz_results
+                        .map(
+                          (r) => `
+                            <tr class="hover:bg-[#F4F6FB]/60">
+                              <td class="py-3.5 px-4 font-bold text-[#251F67]">${escapeHtml(r.studentName)}</td>
+                              <td class="py-3.5 px-4 text-slate-600">${escapeHtml(r.quizTitle)}</td>
+                              <td class="py-3.5 px-4">
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                                  r.mode === 'external' ? 'bg-amber-100 text-amber-700' : 'bg-indigo-100 text-indigo-700'
+                                }">${r.mode === 'external' ? 'Eksternal' : 'Manual'}</span>
+                              </td>
+                              <td class="py-3.5 px-4 font-extrabold text-[#251F67]">${r.score}</td>
+                              <td class="py-3.5 px-4 text-right flex items-center justify-end gap-2">
+                                <button onclick="window.openEditScoreModal('${r.id}', ${r.score})"
+                                  class="px-3 py-1.5 rounded-full bg-[#EDE9FE] text-[#5B5CE6] text-xs font-bold hover:bg-indigo-200 transition">
+                                  Input Skor
+                                </button>
+                                <button onclick="window.deleteQuizResult('${r.id}')" class="p-2 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 transition">
+                                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                              </td>
+                            </tr>
+                          `
+                        )
+                        .join('')
+                }
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="space-y-6 fade-in">
+          <div>
+            <h1 class="text-2xl font-extrabold text-[#251F67]">Kelola Kelas, Pengguna & Nilai</h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Atur akun login Siswa/Guru, daftar kelas SD/SMP, dan verifikasi nilai kuis.</p>
+          </div>
+
+          <div class="flex items-center gap-2 overflow-x-auto pb-1">
+            ${tabs
+              .map(
+                (t) => `
+                  <button onclick="window.switchManageTab('${t.id}')"
+                    class="px-4 py-2.5 rounded-full text-xs font-bold flex items-center gap-2 whitespace-nowrap transition ${
+                      state.manageTab === t.id
+                        ? 'bg-[#251F67] text-white shadow-sm'
+                        : 'bg-white text-slate-600 hover:bg-indigo-50'
+                    }">
+                    <i data-lucide="${t.icon}" class="w-4 h-4"></i>
+                    <span>${t.label}</span>
+                  </button>
+                `
+              )
+              .join('')}
+          </div>
+
+          <div class="bg-white rounded-[28px] p-6 shadow-bento">
+            ${contentHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 16B. HALAMAN 6: PENGATURAN SEKOLAH & UNGGAH LOGO
+    // =========================================================================
+    function renderSettingsPage() {
+      const s = state.schoolSettings;
+      const isAdminOrPreview = state.currentUser.role === 'admin' || IS_PREVIEW;
+
+      return `
+        <div class="space-y-6 fade-in">
+          <div>
+            <h1 class="text-2xl font-extrabold text-[#251F67]">Pengaturan Sekolah & Logo</h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Sesuaikan identitas sekolah dan unggah logo resmi yang tampil di seluruh aplikasi LMS.</p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <!-- Kartu Kiri: Unggah & Pratinjau Logo Sekolah -->
+            <div class="lg:col-span-5 bg-white rounded-[28px] p-6 sm:p-7 shadow-bento space-y-5">
+              <div class="flex items-center justify-between">
+                <h2 class="text-base font-extrabold text-[#251F67]">Logo Sekolah</h2>
+                <span class="px-3 py-1 rounded-full bg-[#EDE9FE] text-[#5B5CE6] text-[11px] font-extrabold">PNG / JPG / SVG</span>
+              </div>
+
+              <!-- Pratinjau Tampilan Logo di Sidebar -->
+              <div class="p-5 rounded-3xl bg-[#251F67] text-white flex items-center gap-4">
+                <div class="w-16 h-16 rounded-full bg-white flex items-center justify-center p-1.5 shadow-lg shrink-0 overflow-hidden">
+                  ${
+                    s.logoDataUrl
+                      ? `<img id="preview-logo-img" src="${s.logoDataUrl}" alt="Logo Sekolah" class="w-full h-full object-contain rounded-full" />`
+                      : `<i data-lucide="graduation-cap" class="w-8 h-8 text-[#251F67]"></i>`
+                  }
+                </div>
+                <div>
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-[#FFC374]">Pratinjau Bilah Menu</span>
+                  <div class="font-extrabold text-base leading-snug mt-0.5">${escapeHtml(s.schoolName || 'SekolahPintar LMS')}</div>
+                  <div class="text-xs text-indigo-200 mt-0.5">Kode Sidebar: <strong>${escapeHtml(s.shortName || 'LMS')}</strong></div>
+                </div>
+              </div>
+
+              <!-- Area Unggah File Logo -->
+              <label class="cursor-pointer block border-2 border-dashed border-indigo-200 hover:border-[#5B5CE6] bg-[#F4F6FB]/70 hover:bg-indigo-50/40 rounded-3xl p-6 text-center transition">
+                <input type="file" accept="image/*" onchange="window.handleLogoUpload(event)" class="hidden" ${!isAdminOrPreview ? 'disabled' : ''} />
+                <div class="w-12 h-12 rounded-full bg-white text-[#5B5CE6] shadow-sm flex items-center justify-center mx-auto mb-3">
+                  <i data-lucide="upload" class="w-5 h-5"></i>
+                </div>
+                <div class="text-sm font-extrabold text-[#251F67]">Klik untuk Unggah Logo Baru</div>
+                <p class="text-xs text-slate-500 mt-1">Otomatis dioptimalkan agar ringan & cepat dimuat di HP siswa.</p>
+              </label>
+
+              ${
+                s.logoDataUrl && isAdminOrPreview
+                  ? `
+                    <button type="button" onclick="window.removeSchoolLogo()"
+                      class="w-full py-2.5 px-4 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold flex items-center justify-center gap-2 transition">
+                      <i data-lucide="trash-2" class="w-4 h-4"></i>
+                      <span>Hapus Logo & Gunakan Ikon Bawaan</span>
+                    </button>
+                  `
+                  : ''
+              }
+            </div>
+
+            <!-- Kartu Kanan: Formulir Identitas Sekolah -->
+            <div class="lg:col-span-7 bg-white rounded-[28px] p-6 sm:p-7 shadow-bento">
+              <h2 class="text-base font-extrabold text-[#251F67] mb-4">Identitas Satuan Pendidikan</h2>
+
+              <form onsubmit="window.saveSchoolSettings(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div class="sm:col-span-2">
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">Nama Sekolah</label>
+                    <input id="set-school-name" type="text" required value="${escapeHtml(s.schoolName)}"
+                      placeholder="Contoh: SD Negeri 01 Nusantara"
+                      class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67] focus:outline-none focus:ring-2 focus:ring-[#5B5CE6]" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">Singkatan (Max 6 Huruf)</label>
+                    <input id="set-short-name" type="text" maxlength="6" required value="${escapeHtml(s.shortName || 'LMS')}"
+                      placeholder="SDN 01"
+                      class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-extrabold uppercase text-[#251F67] focus:outline-none focus:ring-2 focus:ring-[#5B5CE6]" />
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">NPSN Sekolah</label>
+                    <input id="set-npsn" type="text" value="${escapeHtml(s.npsn || '')}"
+                      placeholder="Contoh: 20104567"
+                      class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67] focus:outline-none focus:ring-2 focus:ring-[#5B5CE6]" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">Jenjang Pendidikan</label>
+                    <select id="set-level" class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67]">
+                      <option value="SD" ${s.level === 'SD' ? 'selected' : ''}>Sekolah Dasar (SD)</option>
+                      <option value="SMP" ${s.level === 'SMP' ? 'selected' : ''}>Sekolah Menengah Pertama (SMP)</option>
+                      <option value="SD & SMP" ${s.level === 'SD & SMP' ? 'selected' : ''}>Terpadu (SD & SMP)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">Kepala Sekolah</label>
+                    <input id="set-headmaster" type="text" value="${escapeHtml(s.headmaster || '')}"
+                      placeholder="Nama Kepala Sekolah"
+                      class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67] focus:outline-none focus:ring-2 focus:ring-[#5B5CE6]" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">Tahun Ajaran Aktif</label>
+                    <input id="set-academic-year" type="text" value="${escapeHtml(s.academicYear || '')}"
+                      placeholder="Contoh: 2026/2027 • Semester Ganjil"
+                      class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67] focus:outline-none focus:ring-2 focus:ring-[#5B5CE6]" />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-500 mb-1.5">Alamat Lengkap Sekolah</label>
+                  <textarea id="set-address" rows="2" placeholder="Alamat jalan, kecamatan, kota..."
+                    class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67] focus:outline-none focus:ring-2 focus:ring-[#5B5CE6]">${escapeHtml(s.address || '')}</textarea>
+                </div>
+
+                <div class="pt-2 flex items-center justify-between gap-3">
+                  <span class="text-xs text-slate-400">
+                    ${!isAdminOrPreview ? 'Catatan: Login sebagai Admin Sekolah untuk menyimpan perubahan ke database.' : 'Perubahan langsung diterapkan ke seluruh pengguna.'}
+                  </span>
+                  <button type="submit" ${!isAdminOrPreview ? 'disabled' : ''}
+                    class="px-6 py-3 rounded-full bg-[#5B5CE6] hover:bg-[#4A4BD4] disabled:opacity-50 text-white text-xs sm:text-sm font-bold shadow-lg shadow-indigo-200 flex items-center gap-2 transition shrink-0">
+                    <i data-lucide="save" class="w-4 h-4"></i>
+                    <span>Simpan Pengaturan</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 17. MODAL TAMBAH DATA (VIDEO, LIVE, KUIS MANUAL/EKSTERNAL, USER, KELAS)
+    // =========================================================================
+    window.openAddVideoModal = () => {
+      openModal(`
+        <h3 class="text-xl font-extrabold text-[#251F67] mb-1">Sematkan Link Video Pembelajaran</h3>
+        <p class="text-xs text-slate-500 mb-5">Tempelkan link YouTube, Google Drive, atau tautan MP4. Video akan langsung tersemat dan bisa diputar siswa.</p>
+        <form onsubmit="window.submitNewVideo(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1.5">Judul Materi Video</label>
+            <input id="vid-title" type="text" required placeholder="Contoh: Perkalian Pecahan Mudah"
+              class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67] focus:outline-none focus:ring-2 focus:ring-[#5B5CE6]" />
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1.5">Mata Pelajaran</label>
+              <select id="vid-subject" class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67]">
+                ${SUBJECT_LIST.map((s) => `<option value="${s}">${s}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1.5">Kelas Target</label>
+              <input id="vid-class" type="text" required value="${escapeHtml(state.classes[0]?.name || 'Kelas 5A (SD)')}"
+                class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67]" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1.5">Tautan / Link Video (YouTube / Google Drive)</label>
+            <input id="vid-url" type="url" required placeholder="https://www.youtube.com/watch?v=..."
+              class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67]" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1.5">Ringkasan Singkat</label>
+            <textarea id="vid-desc" rows="2" placeholder="Penjelasan singkat isi video..."
+              class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67]"></textarea>
+          </div>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" onclick="window.closeModalBtn()" class="px-5 py-2.5 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">Batal</button>
+            <button type="submit" class="px-6 py-2.5 rounded-full bg-[#5B5CE6] text-white text-xs font-bold">Simpan & Tayangkan</button>
+          </div>
+        </form>
+      `);
+    };
+
+    window.submitNewVideo = async (e) => {
+      e.preventDefault();
+      const rawUrl = document.getElementById('vid-url').value.trim();
+      const payload = {
+        title: document.getElementById('vid-title').value.trim(),
+        subject: document.getElementById('vid-subject').value,
+        className: document.getElementById('vid-class').value.trim(),
+        rawUrl,
+        embedUrl: parseVideoEmbedUrl(rawUrl),
+        description: document.getElementById('vid-desc').value.trim(),
+        teacherName: state.currentUser.name,
+        createdAt: new Date().toISOString()
+      };
+      const created = await dbAdd('videos', payload);
+      state.activeVideo = created;
+      closeModal();
+      showToast('Video pembelajaran berhasil disematkan!');
+      renderApp();
+    };
+
+    window.openAddLiveModal = () => {
+      const randomRoom = `https://meet.jit.si/SekolahPintar-${Math.floor(1000 + Math.random() * 9000)}`;
+      openModal(`
+        <h3 class="text-xl font-extrabold text-[#251F67] mb-1">Buat Jadwal Kelas Live Guru</h3>
+        <p class="text-xs text-slate-500 mb-5">Gunakan ruang Jitsi Meet otomatis (langsung tertanam di dalam aplikasi) atau tempel link YouTube Live.</p>
+        <form onsubmit="window.submitNewLive(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1.5">Topik Pertemuan Live</label>
+            <input id="live-title" type="text" required placeholder="Contoh: Bedah Soal Matematika Persiapan UTS"
+              class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67]" />
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1.5">Mata Pelajaran</label>
+              <select id="live-subject" class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67]">
+                ${SUBJECT_LIST.map((s) => `<option value="${s}">${s}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1.5">Kelas</label>
+              <input id="live-class" type="text" required value="${escapeHtml(state.classes[0]?.name || 'Kelas 5A (SD)')}"
+                class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67]" />
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1.5">Waktu Pelaksanaan</label>
+              <input id="live-time" type="text" required value="Hari Ini • Sekarang"
+                class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67]" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1.5">Status Awal</label>
+              <select id="live-status" class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67]">
+                <option value="live">LIVE SEKARANG</option>
+                <option value="scheduled">TERJADWAL</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1.5">Link Ruang Video Live (Otomatis Siap Pakai)</label>
+            <input id="live-url" type="url" required value="${randomRoom}"
+              class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-xs font-mono font-semibold text-[#251F67]" />
+          </div>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" onclick="window.closeModalBtn()" class="px-5 py-2.5 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">Batal</button>
+            <button type="submit" class="px-6 py-2.5 rounded-full bg-[#251F67] text-white text-xs font-bold">Simpan Jadwal Live</button>
+          </div>
+        </form>
+      `);
+    };
+
+    window.submitNewLive = async (e) => {
+      e.preventDefault();
+      const rawUrl = document.getElementById('live-url').value.trim();
+      const payload = {
+        title: document.getElementById('live-title').value.trim(),
+        subject: document.getElementById('live-subject').value,
+        className: document.getElementById('live-class').value.trim(),
+        teacherName: state.currentUser.name,
+        meetingUrl: rawUrl,
+        embedUrl: parseLiveEmbedUrl(rawUrl),
+        scheduleTime: document.getElementById('live-time').value.trim(),
+        status: document.getElementById('live-status').value,
+        attendees: []
+      };
+      await dbAdd('live_sessions', payload);
+      closeModal();
+      showToast('Jadwal Kelas Live berhasil dibuat!');
+    };
+
+    // Modal Buat Kuis Hybrid (Mode Manual atau Integrasi Eksternal)
+    window.openAddQuizModal = () => {
+      openModal(`
+        <h3 class="text-xl font-extrabold text-[#251F67] mb-1">Buat atau Sematkan Kuis</h3>
+        <p class="text-xs text-slate-500 mb-4">Pilih input soal pilihan ganda manual atau integrasikan link dari Wordwall, Quizizz, Kahoot, & Google Forms.</p>
+        
+        <form onsubmit="window.submitNewQuiz(event)" class="space-y-4">
+          <div class="grid grid-cols-2 p-1 rounded-full bg-[#F4F6FB]">
+            <button type="button" id="btn-mode-manual" onclick="window.toggleQuizFormMode('manual')"
+              class="py-2 rounded-full text-xs font-extrabold bg-[#251F67] text-white transition">
+              📝 Input Soal Manual
+            </button>
+            <button type="button" id="btn-mode-external" onclick="window.toggleQuizFormMode('external')"
+              class="py-2 rounded-full text-xs font-extrabold text-slate-500 transition">
+              🔗 Integrasi Kuis Luar
+            </button>
+          </div>
+          <input type="hidden" id="quiz-mode-val" value="manual" />
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1.5">Judul Kuis</label>
+            <input id="quiz-title" type="text" required placeholder="Contoh: Kuis Bab 2 - Ekosistem"
+              class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67]" />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1.5">Mata Pelajaran</label>
+              <select id="quiz-subject" class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-xs font-semibold text-[#251F67]">
+                ${SUBJECT_LIST.map((s) => `<option value="${s}">${s}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1.5">Kelas</label>
+              <input id="quiz-class" type="text" required value="${escapeHtml(state.classes[0]?.name || 'Kelas 5A (SD)')}"
+                class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-xs font-semibold text-[#251F67]" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1.5">Durasi (Menit)</label>
+              <input id="quiz-duration" type="number" min="1" max="120" value="15"
+                class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-xs font-semibold text-[#251F67]" />
+            </div>
+          </div>
+
+          <!-- Bagian Khusus Mode Manual -->
+          <div id="quiz-manual-builder" class="space-y-3 border-t border-slate-100 pt-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-[#251F67]">Daftar Pertanyaan Pilihan Ganda</span>
+              <button type="button" onclick="window.appendManualQuestionRow()"
+                class="px-3 py-1.5 rounded-full bg-[#EDE9FE] text-[#5B5CE6] text-xs font-bold hover:bg-indigo-200 transition">
+                + Tambah Soal
+              </button>
+            </div>
+            <div id="manual-questions-container" class="space-y-3 max-h-60 overflow-y-auto pr-1"></div>
+          </div>
+
+          <!-- Bagian Khusus Mode Eksternal -->
+          <div id="quiz-external-builder" class="hidden space-y-3 border-t border-slate-100 pt-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1.5">Link Aplikasi Kuis (Wordwall / Quizizz / Kahoot / Google Forms)</label>
+              <input id="quiz-ext-url" type="url" placeholder="https://wordwall.net/id/resource/..."
+                class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67]" />
+              <p class="text-[11px] text-slate-400 mt-1.5">Sistem otomatis mendeteksi platform dan menyematkan kuis agar langsung terbuka di dalam aplikasi.</p>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" onclick="window.closeModalBtn()" class="px-5 py-2.5 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">Batal</button>
+            <button type="submit" class="px-6 py-2.5 rounded-full bg-[#5B5CE6] text-white text-xs font-bold">Simpan Kuis</button>
+          </div>
+        </form>
+      `);
+      window.appendManualQuestionRow();
+    };
+
+    window.toggleQuizFormMode = (mode) => {
+      document.getElementById('quiz-mode-val').value = mode;
+      const btnManual = document.getElementById('btn-mode-manual');
+      const btnExt = document.getElementById('btn-mode-external');
+      const boxManual = document.getElementById('quiz-manual-builder');
+      const boxExt = document.getElementById('quiz-external-builder');
+
+      if (mode === 'manual') {
+        btnManual.className = 'py-2 rounded-full text-xs font-extrabold bg-[#251F67] text-white transition';
+        btnExt.className = 'py-2 rounded-full text-xs font-extrabold text-slate-500 transition';
+        boxManual.classList.remove('hidden');
+        boxExt.classList.add('hidden');
+      } else {
+        btnExt.className = 'py-2 rounded-full text-xs font-extrabold bg-[#251F67] text-white transition';
+        btnManual.className = 'py-2 rounded-full text-xs font-extrabold text-slate-500 transition';
+        boxExt.classList.remove('hidden');
+        boxManual.classList.add('hidden');
+      }
+    };
+
+    window.appendManualQuestionRow = () => {
+      const container = document.getElementById('manual-questions-container');
+      if (!container) return;
+      const idx = container.children.length + 1;
+      const div = document.createElement('div');
+      div.className = 'p-3.5 rounded-2xl bg-[#F4F6FB] space-y-2 manual-q-item';
+      div.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-extrabold text-[#251F67]">Soal #${idx}</span>
+          ${idx > 1 ? `<button type="button" onclick="this.closest('.manual-q-item').remove()" class="text-[11px] font-bold text-rose-500">Hapus</button>` : ''}
+        </div>
+        <input type="text" placeholder="Tulis pertanyaan..." class="q-text w-full px-3 py-2 rounded-xl bg-white text-xs font-semibold text-[#251F67]" />
+        <div class="grid grid-cols-2 gap-2">
+          <input type="text" placeholder="Pilihan A" class="q-opt-0 px-3 py-1.5 rounded-xl bg-white text-xs" />
+          <input type="text" placeholder="Pilihan B" class="q-opt-1 px-3 py-1.5 rounded-xl bg-white text-xs" />
+          <input type="text" placeholder="Pilihan C" class="q-opt-2 px-3 py-1.5 rounded-xl bg-white text-xs" />
+          <input type="text" placeholder="Pilihan D" class="q-opt-3 px-3 py-1.5 rounded-xl bg-white text-xs" />
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] font-bold text-slate-500">Kunci Jawaban:</span>
+          <select class="q-ans px-3 py-1 rounded-lg bg-white text-xs font-bold text-[#5B5CE6]">
+            <option value="0">Pilihan A</option>
+            <option value="1">Pilihan B</option>
+            <option value="2">Pilihan C</option>
+            <option value="3">Pilihan D</option>
+          </select>
+        </div>
+      `;
+      container.appendChild(div);
+    };
+
+    window.submitNewQuiz = async (e) => {
+      e.preventDefault();
+      const mode = document.getElementById('quiz-mode-val').value;
+      const title = document.getElementById('quiz-title').value.trim();
+      const subject = document.getElementById('quiz-subject').value;
+      const className = document.getElementById('quiz-class').value.trim();
+      const durationMinutes = Number(document.getElementById('quiz-duration').value) || 10;
+
+      if (mode === 'external') {
+        const rawUrl = document.getElementById('quiz-ext-url').value.trim();
+        if (!rawUrl) {
+          showToast('Masukkan link kuis eksternal terlebih dahulu.', 'error');
+          return;
+        }
+        const parsed = parseExternalQuizUrl(rawUrl);
+        await dbAdd('quizzes', {
+          title,
+          subject,
+          className,
+          mode: 'external',
+          externalPlatform: parsed.platform,
+          externalUrl: rawUrl,
+          embedUrl: parsed.embedUrl,
+          durationMinutes,
+          questions: [],
+          teacherName: state.currentUser.name,
+          createdAt: new Date().toISOString()
+        });
+      } else {
+        const items = Array.from(document.querySelectorAll('.manual-q-item'));
+        const questions = items
+          .map((item) => ({
+            question: item.querySelector('.q-text').value.trim(),
+            options: [
+              item.querySelector('.q-opt-0').value.trim(),
+              item.querySelector('.q-opt-1').value.trim(),
+              item.querySelector('.q-opt-2').value.trim(),
+              item.querySelector('.q-opt-3').value.trim()
+            ],
+            answerIndex: Number(item.querySelector('.q-ans').value)
+          }))
+          .filter((q) => q.question && q.options[0] && q.options[1]);
+
+        if (questions.length === 0) {
+          showToast('Isi minimal 1 soal beserta pilihan jawabannya.', 'error');
+          return;
+        }
+
+        await dbAdd('quizzes', {
+          title,
+          subject,
+          className,
+          mode: 'manual',
+          externalPlatform: '',
+          externalUrl: '',
+          embedUrl: '',
+          durationMinutes,
+          questions,
+          teacherName: state.currentUser.name,
+          createdAt: new Date().toISOString()
+        });
+      }
+
+      closeModal();
+      showToast('Kuis berhasil diterbitkan ke siswa!');
+    };
+
+    window.openAddUserModal = (role) => {
+      openModal(`
+        <h3 class="text-xl font-extrabold text-[#251F67] mb-1">Tambah Akun ${role === 'siswa' ? 'Siswa' : 'Guru'}</h3>
+        <p class="text-xs text-slate-500 mb-5">Akun ini digunakan untuk login langsung di tab Siswa & Guru tanpa perlu email.</p>
+        <form onsubmit="window.submitNewUser(event, '${role}')" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1.5">Nama Lengkap</label>
+            <input id="usr-name" type="text" required placeholder="Contoh: Siti Aminah"
+              class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67]" />
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1.5">Username / NISN / NIP</label>
+              <input id="usr-username" type="text" required placeholder="Contoh: siswa02"
+                class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67]" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1.5">Kata Sandi</label>
+              <input id="usr-pass" type="text" required placeholder="Contoh: 12345"
+                class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67]" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1.5">Kelas</label>
+            <input id="usr-class" type="text" required value="${escapeHtml(state.classes[0]?.name || 'Kelas 5A (SD)')}"
+              class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67]" />
+          </div>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" onclick="window.closeModalBtn()" class="px-5 py-2.5 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">Batal</button>
+            <button type="submit" class="px-6 py-2.5 rounded-full bg-[#5B5CE6] text-white text-xs font-bold">Simpan Akun</button>
+          </div>
+        </form>
+      `);
+    };
+
+    window.submitNewUser = async (e, role) => {
+      e.preventDefault();
+      await dbAdd('users', {
+        name: document.getElementById('usr-name').value.trim(),
+        username: document.getElementById('usr-username').value.trim(),
+        password: document.getElementById('usr-pass').value.trim(),
+        role,
+        className: document.getElementById('usr-class').value.trim()
+      });
+      closeModal();
+      showToast(`Akun ${role} berhasil ditambahkan!`);
+    };
+
+    window.openAddClassModal = () => {
+      openModal(`
+        <h3 class="text-xl font-extrabold text-[#251F67] mb-4">Tambah Kelas Baru (SD / SMP)</h3>
+        <form onsubmit="window.submitNewClass(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1.5">Nama Kelas</label>
+            <input id="cls-name" type="text" required placeholder="Contoh: Kelas 4B (SD) atau Kelas 8A (SMP)"
+              class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67]" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1.5">Jenjang</label>
+              <select id="cls-level" class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67]">
+                <option value="SD">SD</option>
+                <option value="SMP">SMP</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-500 mb-1.5">Wali Kelas</label>
+              <input id="cls-teacher" type="text" required value="${escapeHtml(state.currentUser.name)}"
+                class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-sm font-semibold text-[#251F67]" />
+            </div>
+          </div>
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" onclick="window.closeModalBtn()" class="px-5 py-2.5 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">Batal</button>
+            <button type="submit" class="px-6 py-2.5 rounded-full bg-[#5B5CE6] text-white text-xs font-bold">Simpan Kelas</button>
+          </div>
+        </form>
+      `);
+    };
+
+    window.submitNewClass = async (e) => {
+      e.preventDefault();
+      await dbAdd('classes', {
+        name: document.getElementById('cls-name').value.trim(),
+        level: document.getElementById('cls-level').value,
+        teacherName: document.getElementById('cls-teacher').value.trim()
+      });
+      closeModal();
+      showToast('Data kelas berhasil disimpan!');
+    };
+
+    window.openEditScoreModal = (resultId, currentScore) => {
+      openModal(`
+        <h3 class="text-xl font-extrabold text-[#251F67] mb-1">Input / Perbarui Nilai Kuis</h3>
+        <p class="text-xs text-slate-500 mb-4">Masukkan nilai akhir (0–100) untuk hasil kuis eksternal atau penyesuaian nilai siswa.</p>
+        <form onsubmit="window.submitEditScore(event, '${resultId}')" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 mb-1.5">Nilai Akhir (0 - 100)</label>
+            <input id="edit-score-input" type="number" min="0" max="100" required value="${currentScore}"
+              class="w-full px-4 py-3 rounded-2xl bg-[#F4F6FB] text-lg font-extrabold text-[#251F67]" />
+          </div>
+          <div class="flex justify-end gap-2">
+            <button type="button" onclick="window.closeModalBtn()" class="px-5 py-2.5 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">Batal</button>
+            <button type="submit" class="px-6 py-2.5 rounded-full bg-[#5B5CE6] text-white text-xs font-bold">Simpan Nilai</button>
+          </div>
+        </form>
+      `);
+    };
+
+    window.submitEditScore = async (e, resultId) => {
+      e.preventDefault();
+      const newScore = Math.min(100, Math.max(0, Number(document.getElementById('edit-score-input').value) || 0));
+      await dbUpdate('quiz_results', resultId, { score: newScore });
+      closeModal();
+      showToast('Nilai siswa diperbarui dan disinkronkan ke Statistik Beranda!');
+    };
+
+    // =========================================================================
+    // 18. EVENT HANDLERS GLOBAL (INTERAKSI UI, LIVE, DAN KUIS)
+    // =========================================================================
+    window.closeModalBtn = closeModal;
+
+    window.fillDemoAccount = (username, pass, tab) => {
+      state.loginTab = tab;
+      renderApp();
+      setTimeout(() => {
+        const uEl = document.getElementById('login-username');
+        const pEl = document.getElementById('login-user-pass');
+        if (uEl) uEl.value = username;
+        if (pEl) pEl.value = pass;
+      }, 20);
+    };
+
+    window.switchLoginTab = (tab) => {
+      state.loginTab = tab;
+      renderApp();
+    };
+
+    window.navigateMenu = (menuId) => {
+      if (state.quizTimerInterval) clearInterval(state.quizTimerInterval);
+      state.activeMenu = menuId;
+      state.activeQuizTake = null;
+      if (menuId !== 'live') state.activeLiveSession = null;
+      renderApp();
+    };
+
+    window.logoutUser = () => {
+      confirmAction('Keluar dari Aplikasi?', 'Anda perlu masuk kembali untuk mengakses kelas dan kuis.', handleLogout);
+    };
+
+    window.changeStatsQuizFilter = (val) => {
+      state.statsQuizFilter = val;
+      renderApp();
+    };
+
+    // Video Handlers
+    window.filterVideoSubject = (subj) => {
+      state.videoSubjectFilter = subj;
+      state.activeVideo = null;
+      renderApp();
+    };
+
+    window.searchVideo = (queryText) => {
+      state.videoSearch = queryText;
+      renderApp();
+    };
+
+    window.selectVideoToPlay = (vidId) => {
+      const found = state.videos.find((v) => v.id === vidId);
+      if (found) {
+        state.activeVideo = found;
+        renderApp();
+        const wrapper = document.getElementById('lms-root-wrapper');
+        if (wrapper) wrapper.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+
+    window.deleteVideoItem = (vidId) => {
+      confirmAction('Hapus Video Ini?', 'Video akan dihapus dari daftar pelajaran siswa.', async () => {
+        if (state.activeVideo && state.activeVideo.id === vidId) state.activeVideo = null;
+        await dbDelete('videos', vidId);
+        showToast('Video berhasil dihapus.', 'info');
+      });
+    };
+
+    // Live Handlers
+    window.joinLiveSession = async (sessionId) => {
+      const session = state.live_sessions.find((s) => s.id === sessionId);
+      if (!session) return;
+      state.activeMenu = 'live';
+      state.activeLiveSession = session;
+
+      // Catat presensi otomatis jika belum terdaftar
+      const userName = state.currentUser.name;
+      const attendees = Array.isArray(session.attendees) ? session.attendees : [];
+      if (!attendees.includes(userName)) {
+        if (IS_PREVIEW) {
+          session.attendees = [...attendees, userName];
+        } else {
+          await updateDoc(doc(fbDb, 'live_sessions', sessionId), {
+            attendees: arrayUnion(userName)
+          });
+        }
+      }
+      renderApp();
+    };
+
+    window.leaveLiveSession = () => {
+      state.activeLiveSession = null;
+      renderApp();
+    };
+
+    window.toggleLiveStatus = async (sessionId, newStatus) => {
+      await dbUpdate('live_sessions', sessionId, { status: newStatus });
+      showToast(newStatus === 'live' ? 'Sesi Live dimulai!' : 'Sesi Live telah diakhiri.');
+    };
+
+    window.deleteLiveSession = (sessionId) => {
+      confirmAction('Hapus Jadwal Live?', 'Sesi kelas live ini akan dihapus permanen.', async () => {
+        await dbDelete('live_sessions', sessionId);
+        showToast('Jadwal kelas live dihapus.', 'info');
+      });
+    };
+
+    window.sendLiveMessage = async (e, sessionId) => {
+      e.preventDefault();
+      const input = document.getElementById('live-chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      await dbAdd('live_messages', {
+        sessionId,
+        senderName: state.currentUser.name,
+        senderRole: state.currentUser.role,
+        text,
+        createdAt: timeStr
+      });
+      setTimeout(() => {
+        const list = document.getElementById('live-chat-list');
+        if (list) list.scrollTop = list.scrollHeight;
+      }, 50);
+    };
+
+    // Quiz Handlers
+    window.filterQuizSubject = (subj) => {
+      state.quizSubjectFilter = subj;
+      renderApp();
+    };
+
+    window.startQuiz = (quizId) => {
+      const quiz = state.quizzes.find((q) => q.id === quizId);
+      if (!quiz) return;
+      state.activeQuizTake = quiz;
+      state.quizAnswers = {};
+      state.quizCurrentStep = 0;
+
+      if (state.quizTimerInterval) clearInterval(state.quizTimerInterval);
+      if (quiz.mode === 'manual') {
+        state.quizTimerSeconds = (quiz.durationMinutes || 10) * 60;
+        state.quizTimerInterval = setInterval(() => {
+          state.quizTimerSeconds--;
+          if (state.quizTimerSeconds <= 0) {
+            clearInterval(state.quizTimerInterval);
+            window.finishManualQuiz();
+          } else {
+            renderApp();
+          }
+        }, 1000);
+      }
+      renderApp();
+    };
+
+    window.closeQuizRunner = () => {
+      if (state.quizTimerInterval) clearInterval(state.quizTimerInterval);
+      state.activeQuizTake = null;
+      renderApp();
+    };
+
+    window.jumpQuizStep = (idx) => {
+      state.quizCurrentStep = idx;
+      renderApp();
+    };
+
+    window.prevQuizStep = () => {
+      if (state.quizCurrentStep > 0) {
+        state.quizCurrentStep--;
+        renderApp();
+      }
+    };
+
+    window.nextQuizStep = () => {
+      const total = (state.activeQuizTake?.questions || []).length;
+      if (state.quizCurrentStep < total - 1) {
+        state.quizCurrentStep++;
+        renderApp();
+      }
+    };
+
+    window.selectQuizOption = (qIdx, optIdx) => {
+      state.quizAnswers[qIdx] = optIdx;
+      renderApp();
+    };
+
+    window.finishManualQuiz = async () => {
+      if (state.quizTimerInterval) clearInterval(state.quizTimerInterval);
+      const quiz = state.activeQuizTake;
+      if (!quiz) return;
+      const questions = quiz.questions || [];
+      let correct = 0;
+      questions.forEach((q, idx) => {
+        if (state.quizAnswers[idx] === q.answerIndex) correct++;
+      });
+      const score = questions.length ? Math.round((correct / questions.length) * 100) : 0;
+
+      await dbAdd('quiz_results', {
+        quizId: quiz.id,
+        quizTitle: quiz.title,
+        subject: quiz.subject,
+        className: quiz.className,
+        studentId: state.currentUser.id,
+        studentName: state.currentUser.name,
+        mode: 'manual',
+        score,
+        correctCount: correct,
+        totalQuestions: questions.length,
+        submittedAt: new Date().toISOString()
+      });
+
+      state.activeQuizTake = null;
+      openModal(`
+        <div class="text-center py-4">
+          <div class="w-20 h-20 rounded-full bg-[#DCFCE7] text-emerald-600 flex items-center justify-center mx-auto mb-4 text-3xl font-extrabold">
+            ${score}
+          </div>
+          <h3 class="text-2xl font-extrabold text-[#251F67] mb-1">Hebat, Kuis Selesai! 🎉</h3>
+          <p class="text-sm text-slate-500 mb-6">
+            Kamu menjawab benar <strong>${correct} dari ${questions.length}</strong> soal pada <strong>${escapeHtml(quiz.title)}</strong>.
+          </p>
+          <button onclick="window.closeModalBtn()"
+            class="px-8 py-3 rounded-full bg-[#251F67] text-white text-sm font-bold shadow-lg">
+            Kembali ke Daftar Kuis
+          </button>
+        </div>
+      `);
+      renderApp();
+    };
+
+    window.submitExternalQuizCompletion = async (quizId) => {
+      const quiz = state.quizzes.find((q) => q.id === quizId);
+      if (!quiz) return;
+      await dbAdd('quiz_results', {
+        quizId: quiz.id,
+        quizTitle: quiz.title,
+        subject: quiz.subject,
+        className: quiz.className,
+        studentId: state.currentUser.id,
+        studentName: state.currentUser.name,
+        mode: 'external',
+        score: 100, // Nilai awal selesai (dapat disesuaikan guru di Rekap Nilai)
+        correctCount: 1,
+        totalQuestions: 1,
+        submittedAt: new Date().toISOString()
+      });
+      state.activeQuizTake = null;
+      showToast('Kuis eksternal ditandai selesai & tercatat ke rekap!');
+      renderApp();
+    };
+
+    window.deleteQuizItem = (quizId) => {
+      confirmAction('Hapus Paket Kuis?', 'Kuis ini akan dihapus dari daftar evaluasi.', async () => {
+        await dbDelete('quizzes', quizId);
+        showToast('Kuis berhasil dihapus.', 'info');
+      });
+    };
+
+    // Manage Handlers
+    window.switchManageTab = (tabId) => {
+      state.manageTab = tabId;
+      renderApp();
+    };
+
+    window.deleteUserItem = (userId) => {
+      confirmAction('Hapus Akun Pengguna?', 'Pengguna tidak lagi dapat masuk menggunakan akun ini.', async () => {
+        await dbDelete('users', userId);
+        showToast('Akun pengguna dihapus.', 'info');
+      });
+    };
+
+    window.deleteClassItem = (classId) => {
+      confirmAction('Hapus Kelas?', 'Data kelas ini akan dihapus.', async () => {
+        await dbDelete('classes', classId);
+        showToast('Data kelas dihapus.', 'info');
+      });
+    };
+
+    window.deleteQuizResult = (resId) => {
+      confirmAction('Hapus Data Nilai?', 'Nilai ini akan dihapus dari statistik.', async () => {
+        await dbDelete('quiz_results', resId);
+        showToast('Data nilai dihapus.', 'info');
+      });
+    };
+
+    // School Settings & Logo Upload Handlers
+    window.handleLogoUpload = (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        showToast('Pilih file gambar (PNG, JPG, WebP, atau SVG).', 'error');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = async () => {
+          // Kompresi & ubah ukuran maksimal 240x240px agar ringan disimpan langsung di Firestore
+          const maxDim = 240;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          const optimizedDataUrl = canvas.toDataURL('image/png', 0.9);
+
+          state.schoolSettings.logoDataUrl = optimizedDataUrl;
+          if (!IS_PREVIEW && fbDb && state.currentUser?.role === 'admin') {
+            await setDoc(doc(fbDb, 'settings', 'school_profile'), { logoDataUrl: optimizedDataUrl }, { merge: true });
+          }
+          showToast('Logo sekolah berhasil diunggah & diperbarui!');
+          renderApp();
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.removeSchoolLogo = async () => {
+      state.schoolSettings.logoDataUrl = '';
+      if (!IS_PREVIEW && fbDb && state.currentUser?.role === 'admin') {
+        await setDoc(doc(fbDb, 'settings', 'school_profile'), { logoDataUrl: '' }, { merge: true });
+      }
+      showToast('Logo dikembalikan ke ikon standar.', 'info');
+      renderApp();
+    };
+
+    window.saveSchoolSettings = async (e) => {
+      e.preventDefault();
+      const updated = {
+        ...state.schoolSettings,
+        schoolName: document.getElementById('set-school-name').value.trim(),
+        shortName: document.getElementById('set-short-name').value.trim().toUpperCase() || 'LMS',
+        npsn: document.getElementById('set-npsn').value.trim(),
+        level: document.getElementById('set-level').value,
+        headmaster: document.getElementById('set-headmaster').value.trim(),
+        academicYear: document.getElementById('set-academic-year').value.trim(),
+        address: document.getElementById('set-address').value.trim()
+      };
+
+      state.schoolSettings = updated;
+      if (!IS_PREVIEW && fbDb) {
+        await setDoc(doc(fbDb, 'settings', 'school_profile'), updated, { merge: true });
+      }
+      showToast('Pengaturan identitas sekolah berhasil disimpan!');
+      renderApp();
+    };
+
+    // =========================================================================
+    // 19. RENDERER UTAMA APLIKASI
+    // =========================================================================
+    function renderApp() {
+      const appEl = document.getElementById('app');
+      if (!appEl) return;
+
+      if (!state.currentUser) {
+        appEl.innerHTML = renderLoginPage();
+        const form = document.getElementById('login-form');
+        if (form) form.onsubmit = handleLoginSubmit;
+        renderIcons();
+        return;
+      }
+
+      let activeViewHtml = '';
+      if (state.activeMenu === 'beranda') {
+        activeViewHtml = renderDashboardBento();
+      } else if (state.activeMenu === 'video') {
+        activeViewHtml = renderVideoPage();
+      } else if (state.activeMenu === 'live') {
+        activeViewHtml = renderLivePage();
+      } else if (state.activeMenu === 'kuis') {
+        activeViewHtml = renderQuizPage();
+      } else if (state.activeMenu === 'kelola') {
+        activeViewHtml = renderManagePage();
+      } else if (state.activeMenu === 'pengaturan') {
+        activeViewHtml = renderSettingsPage();
+      }
+
+      // Badge Mode Preview hanya muncul jika IS_PREVIEW === true
+      const topPreviewStrip = IS_PREVIEW
+        ? `
+          <div class="mb-4 px-4 py-2 rounded-full bg-amber-100/90 border border-amber-300 text-[#251F67] text-xs font-bold flex items-center justify-between gap-2">
+            <span class="flex items-center gap-2">
+              <i data-lucide="flask-conical" class="w-4 h-4 text-amber-600"></i>
+              <span>Mode Uji Coba (Preview) — Data berjalan sementara di memori browser.</span>
+            </span>
+            <span class="hidden sm:inline text-[11px] text-amber-800">Ubah IS_PREVIEW = false saat deploy</span>
+          </div>
+        `
+        : '';
+
+      appEl.innerHTML = `
+        <div class="min-h-screen bg-[#F4F6FB]">
+          ${renderNavigation()}
+          <main class="md:pl-20 pb-24 md:pb-10">
+            <div class="max-w-[1380px] mx-auto px-4 sm:px-7 pt-5 sm:pt-7">
+              ${topPreviewStrip}
+              ${activeViewHtml}
+            </div>
+          </main>
+        </div>
+      `;
+
+      renderIcons();
+    }
+
+    // Jalankan render perdana
+    renderApp();
+  </script>
+</body>
+</html>
